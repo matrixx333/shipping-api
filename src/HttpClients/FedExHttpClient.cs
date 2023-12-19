@@ -29,7 +29,7 @@ class FedExHttpClient
          await _builder.BuildAddresses(addressId);
         var request = _builder.SerializeRequest();
         var content = new StringContent(request, Encoding.UTF8, "application/json");
-        return request;
-        //return await _httpClient.PostAsync(_httpClient.BaseAddress, content);
+        // since we do not have an actual Fed Ex account, return the request payload
+        return request;        // return await _httpClient.PostAsync(_httpClient.BaseAddress, content);
     }
 }
