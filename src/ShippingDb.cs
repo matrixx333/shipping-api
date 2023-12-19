@@ -20,8 +20,8 @@ class ShippingDb : DbContext
             );
         modelBuilder.Entity<Address>()
             .HasData(
-            new Address { Id = 1, Address1 = "279 W Highland St", City = "Altamonte Springs", State = "FL", ZipCode = "32789", CountryCode = "US" },
-            new Address { Id = 2, Address1 = "2540 E 131st Pl", City = "Thornton", State = "CO", ZipCode = "80241", CountryCode = "US" }
+            new Address { Id = 1, Address1 = "555 Somewhere St.", City = "Altamonte Springs", State = "FL", ZipCode = "32789", CountryCode = "US" },
+            new Address { Id = 2, Address1 = "777 Magnolia Blvd.", City = "Thornton", State = "CO", ZipCode = "80241", CountryCode = "US" }
             );
     }
 }
