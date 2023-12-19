@@ -1,0 +1,6 @@
+@shipping_api_HostAddress = http://localhost:5242
+
+GET {{shipping_api_HostAddress}}/swagger/
+Accept: application/json
+
+###
