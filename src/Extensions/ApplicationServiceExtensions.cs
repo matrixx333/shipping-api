@@ -1,6 +1,4 @@
 
-using System.Security.Cryptography.X509Certificates;
-
 static class ApplicationServiceExtensions
 {
     public static void AddHttpClients(this IServiceCollection services)
@@ -15,5 +13,6 @@ static class ApplicationServiceExtensions
         services.AddScoped<AddressService>();
         services.AddScoped<UpsAddressValidationRequestBuilder>();
         services.AddScoped<FedExAddressValidationRequestBuilder>();
+        services.AddScoped<ShippingHttpClientFactory>();
     }
 }

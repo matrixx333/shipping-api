@@ -1,4 +1,3 @@
-using System.Runtime.CompilerServices;
 using System.Text.Json;
 
 class FedExAddressValidationRequestBuilder : IAddressValidationRequestBuilder
@@ -14,7 +13,7 @@ class FedExAddressValidationRequestBuilder : IAddressValidationRequestBuilder
         };
     }
    
-    public async Task BuildAddresses(int addressId)
+    public async Task BuildAddressRequest(int addressId)
     {
         var address = await _addressService.GetAddressAsync(addressId);
         var address1 = address.Address1 ?? string.Empty;

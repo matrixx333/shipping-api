@@ -1,8 +1,7 @@
-using System.Net;
 using System.Net.Http.Headers;
 using System.Text;
 
-class FedExHttpClient
+class FedExHttpClient : IShippingHttpClient
 {
     private readonly HttpClient _httpClient;
     private FedExAddressValidationRequestBuilder _builder;
@@ -26,7 +25,7 @@ class FedExHttpClient
 
     public async Task<string> ValidateAddress(int addressId)
     {
-         await _builder.BuildAddresses(addressId);
+        await _builder.BuildAddressRequest(addressId);
         var request = _builder.SerializeRequest();
         var content = new StringContent(request, Encoding.UTF8, "application/json");
         // since we do not have an actual Fed Ex account, return the request payload
