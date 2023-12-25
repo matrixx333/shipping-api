@@ -38,7 +38,7 @@ These are the service objects that have a dependency on the database. They are a
 
 ## Program.cs
 
-This is the main entry point into the API. There is a single POST endpoint ('validate-address') for validating addresses. The request object that is send as part of the POST contains the shippingCompanyId for the specific shipping provider along with an addressId that is used to obtain the address that is stored in the database. The address record is retrieved using the addressId, then it is built as part of the API request that is sent to the shipping provider. 
+This is the main entry point into the API. There is a single POST endpoint ('validate-address') for validating addresses. The request object that is sent as part of the POST contains the shippingCompanyId for the specific shipping provider along with an addressId that is used to obtain the address that is stored in the database. The address record is retrieved using the addressId, then it is built as part of the API request that is sent to the shipping provider. 
 
 # Disclaimer 
 
