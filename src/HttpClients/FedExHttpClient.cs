@@ -12,12 +12,13 @@ class FedExHttpClient : IShippingHttpClient
     public FedExHttpClient(
         HttpClient httpClient, 
         FedExAddressValidationRequestBuilder builder,
-        string accountKey)
+        string accountKey, 
+        string apiUrl)
     {
         _httpClient = httpClient;
         _builder = builder;
 
-        _httpClient.BaseAddress = new Uri("https://apis-sandbox.fedex.com/address/v1/addresses/resolve");
+        _httpClient.BaseAddress = new Uri($"{apiUrl}/address/v1/addresses/resolve");
         _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accountKey);
         _httpClient.DefaultRequestHeaders.Add("X-Locale", "en_US");
         _httpClient.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json");

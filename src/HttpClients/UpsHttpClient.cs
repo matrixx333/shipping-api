@@ -12,10 +12,11 @@ class UpsHttpClient : IShippingHttpClient
     public UpsHttpClient(
         HttpClient httpClient, 
         UpsAddressValidationRequestBuilder builder,
-        string accountKey)
+        string accountKey,
+        string apiUrl)
     {
         _httpClient = httpClient;
-        _httpClient.BaseAddress = new Uri("https://wwwcie.ups.com/api/addressvalidation/v1/1?regionalrequestindicator=string&maximumcandidatelistsize=1");
+        _httpClient.BaseAddress = new Uri($"{apiUrl}/addressvalidation/v1/1?regionalrequestindicator=string&maximumcandidatelistsize=1");
         _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accountKey);
         _httpClient.DefaultRequestHeaders.Add("X-Locale", "en_US");
         _httpClient.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json");

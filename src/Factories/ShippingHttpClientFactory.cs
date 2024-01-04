@@ -11,11 +11,23 @@ class ShippingHttpClientFactory(IServiceProvider service, ShippingCompanyService
         {
             case "UPS":
                 var upsAddressValidationRequestBuilder = service.GetRequiredService<UpsAddressValidationRequestBuilder>();
-                shippingHttpClient = new UpsHttpClient(httpClient, upsAddressValidationRequestBuilder, shippingCompany.AccountKey);
+                shippingHttpClient = new UpsHttpClient
+                (
+                    httpClient, 
+                    upsAddressValidationRequestBuilder, 
+                    shippingCompany.AccountKey, 
+                    shippingCompany.ApiUrl
+                );
                 break;
             case "Fed Ex":
                 var fedExAddressValidationRequestBuilder = service.GetRequiredService<FedExAddressValidationRequestBuilder>();
-                shippingHttpClient = new FedExHttpClient(httpClient, fedExAddressValidationRequestBuilder, shippingCompany.AccountKey);
+                shippingHttpClient = new FedExHttpClient
+                (
+                    httpClient, 
+                    fedExAddressValidationRequestBuilder, 
+                    shippingCompany.AccountKey, 
+                    shippingCompany.ApiUrl
+                );
                 break;
             default:
                 throw new Exception("Shipping company not found.");
