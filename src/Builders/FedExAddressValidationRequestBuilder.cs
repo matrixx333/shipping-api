@@ -1,6 +1,4 @@
-using System.Text.Json;
-
-class FedExAddressValidationRequestBuilder : IAddressValidationRequestBuilder
+class FedExAddressValidationRequestBuilder : IAddressValidationRequestBuilder, ISerializableRequest
 {
     private readonly AddressService _addressService;
     private FedExAddressValidationPayload _payload;

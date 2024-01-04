@@ -1,0 +1,4 @@
+interface ISerializableRequest
+{
+    string SerializeRequest();
+}

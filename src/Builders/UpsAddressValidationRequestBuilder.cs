@@ -1,6 +1,4 @@
-using System.Text.Json;
-
-class UpsAddressValidationRequestBuilder : IAddressValidationRequestBuilder
+class UpsAddressValidationRequestBuilder : IAddressValidationRequestBuilder, ISerializableRequest
 {
     private readonly AddressService _addressService;
     private UpsAddressValidationPayload _payload;
