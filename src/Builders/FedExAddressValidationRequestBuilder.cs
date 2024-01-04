@@ -31,8 +31,7 @@ class FedExAddressValidationRequestBuilder : IAddressValidationRequestBuilder
 
     public string SerializeRequest()
     {
-        if (_payload == null) return string.Empty;
-        return JsonSerializer.Serialize(_payload);
+        return SerializationHelper.SerializeRequest(_payload);
     }
 
     private class FedExAddressValidationPayload
