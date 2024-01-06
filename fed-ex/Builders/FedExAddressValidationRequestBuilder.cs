@@ -1,19 +1,16 @@
-class FedExAddressValidationRequestBuilder : IAddressValidationRequestBuilder, ISerializableRequest
+public class FedExAddressValidationRequestBuilder : IAddressValidationRequestBuilder, ISerializableRequest
 {
-    private readonly AddressService _addressService;
     private FedExAddressValidationPayload _payload;
-    public FedExAddressValidationRequestBuilder(AddressService addressService)
+    public FedExAddressValidationRequestBuilder()
     {
-        _addressService = addressService;
         _payload = new FedExAddressValidationPayload
         {
             AddressesToValidate = []
         };
     }
    
-    public async Task BuildAddressRequest(int addressId)
+    public void BuildAddressRequest(global::Address address)
     {
-        var address = await _addressService.GetAddressAsync(addressId);
         var address1 = address.Address1 ?? string.Empty;
         var address2 = address.Address2 ?? string.Empty;
         var addressToValidate = new Address()
@@ -26,7 +23,7 @@ class FedExAddressValidationRequestBuilder : IAddressValidationRequestBuilder, I
         };        
         _payload.AddressesToValidate = [addressToValidate];
     }
-
+   
     public string SerializeRequest()
     {
         return SerializationHelper.SerializeRequest(_payload);

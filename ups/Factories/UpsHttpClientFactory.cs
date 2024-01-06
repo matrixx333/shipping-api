@@ -1,4 +1,4 @@
-class UpsHttpClientFactory(IHttpClientFactory httpClientFactory, UpsAddressValidationRequestBuilder upsAddressValidationRequestBuilder) : IShippingHttpClientFactory
+public class UpsHttpClientFactory(IHttpClientFactory httpClientFactory, UpsAddressValidationRequestBuilder upsAddressValidationRequestBuilder) : IShippingHttpClientFactory
 {
     public IShippingHttpClient CreateHttpClient(ShippingCompany shippingCompany)
     {
