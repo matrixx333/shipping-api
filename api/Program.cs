@@ -7,6 +7,7 @@ builder.Services.AddDbContext<ShippingDb>(options =>
     options.UseInMemoryDatabase("Addresses"));
 
 builder.Services.AddServices();
+builder.Services.AddFactories();
 builder.Services.AddHttpClients();
 builder.Services.AddEndpointsApiExplorer();
 // Add services to the container.
