@@ -43,19 +43,6 @@ static class ApplicationServiceExtensions
                 throw new KeyNotFoundException($"No HTTP client factory found for shipping company type: {key}");
             };
         });
-
-        // services.AddTransient<Func<ShippingCompanyType, IShippingHttpClientFactory>>(sp => key =>
-        // {
-        //     switch (key)
-        //     {
-        //         case ShippingCompanyType.Ups:
-        //             return sp.GetRequiredService<UpsHttpClientFactory>();
-        //         case ShippingCompanyType.FedEx:
-        //             return sp.GetRequiredService<FedExHttpClientFactory>();
-        //         default:
-        //             throw new KeyNotFoundException();
-        //     }
-        // });
     }
 
     public static void AddServices(this IServiceCollection services)
