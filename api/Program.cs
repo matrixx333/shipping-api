@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -31,14 +32,15 @@ using (var scope = app.Services.CreateScope())
     dbContext.Database.EnsureCreated();
 }
 
-app.MapPost("/validate-address", async (AddressValidationRequest addressValidationRequest, ShippingHttpClientFactory factory, ShippingCompanyService shippingCompanyService) =>
+app.MapPost("/validate-address", async (AddressValidationRequest addressValidationRequest, ShippingHttpClientFactory factory, ShippingCompanyService shippingCompanyService, AddressService addressService) =>
 {
     string response;
     using (var scope = app.Services.CreateScope())
     {
         var shippingCompany = await shippingCompanyService.GetShippingCompanyAsync(addressValidationRequest.ShippingCompanyId);
         var httpClient = factory.CreateHttpClient(shippingCompany);
-        response = await httpClient.ValidateAddress(addressValidationRequest.AddressId);    
+        var address = await addressService.GetAddressAsync(addressValidationRequest.AddressId);
+        response = await httpClient.ValidateAddress(address);    
     }
     return Results.Ok(response);
 })

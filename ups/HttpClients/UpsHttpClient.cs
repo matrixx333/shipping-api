@@ -1,7 +1,7 @@
 using System.Net.Http.Headers;
 using System.Text;
 
-class UpsHttpClient : IShippingHttpClient
+public class UpsHttpClient : IShippingHttpClient
 {
     private readonly HttpClient _httpClient;
     private UpsAddressValidationRequestBuilder _builder;
@@ -22,9 +22,9 @@ class UpsHttpClient : IShippingHttpClient
         _builder = builder;
     }
 
-    public async Task<string> ValidateAddress(int addressId)
+    public async Task<string> ValidateAddress(Address address)
     {
-        await _builder.BuildAddressRequest(addressId);
+        _builder.BuildAddressRequest(address);
         var request = _builder.SerializeRequest();
         var content = new StringContent(request, Encoding.UTF8, "application/json");
         // since we do not have an actual UPS account, return the request payload

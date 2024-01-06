@@ -15,4 +15,11 @@
     <PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="6.5.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\ups\ups.csproj" />
+    <ProjectReference Include="..\fed-ex\fed-ex.csproj" />
+    <ProjectReference Include="..\common\common.csproj" />
+    <ProjectReference Include="..\models\models.csproj" />
+  </ItemGroup>
+
 </Project>

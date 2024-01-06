@@ -1,20 +1,17 @@
-class UpsAddressValidationRequestBuilder : IAddressValidationRequestBuilder, ISerializableRequest
+public class UpsAddressValidationRequestBuilder : IAddressValidationRequestBuilder, ISerializableRequest
 {
-    private readonly AddressService _addressService;
     private UpsAddressValidationPayload _payload;
 
-    public UpsAddressValidationRequestBuilder(AddressService addressService)
+    public UpsAddressValidationRequestBuilder()
     {
-        _addressService = addressService;
         _payload = new UpsAddressValidationPayload
         {
             XAVRequest = []
         };
     }
 
-    public async Task BuildAddressRequest(int addressId)
+    public void BuildAddressRequest(Address address)
     {
-        var address = await _addressService.GetAddressAsync(addressId);
         var address1 = address.Address1 ?? string.Empty;
         var address2 = address.Address2 ?? string.Empty;
         var addressKeyFormat = new AddressKeyFormat()
