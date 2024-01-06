@@ -30,7 +30,7 @@ static class ApplicationServiceExtensions
             var factories = new Dictionary<ShippingCompanyType, IShippingHttpClientFactory>
             {
                 { ShippingCompanyType.Ups, sp.GetRequiredService<UpsHttpClientFactory>() },
-                { ShippingCompanyType.FedEx, sp.GetRequiredService<FedExHttpClientFactory>() },
+                { ShippingCompanyType.FedEx, sp.GetRequiredService<FedExHttpClientFactory>() }
             };
 
             return key =>
