@@ -1,4 +1,4 @@
-interface IShippingHttpClient
+public interface IShippingHttpClient
 {
     /// <summary>
     /// Validates the address stored in the database against the selected shipping company API. 

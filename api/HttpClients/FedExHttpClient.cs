@@ -1,26 +1,26 @@
 using System.Net.Http.Headers;
 using System.Text;
 
-class UpsHttpClient : IShippingHttpClient
+class FedExHttpClient : IShippingHttpClient
 {
     private readonly HttpClient _httpClient;
-    private UpsAddressValidationRequestBuilder _builder;
+    private FedExAddressValidationRequestBuilder _builder;
 
     /// <summary>
-    /// https://developer.ups.com/api/reference?loc=en_US#operation/AddressValidation
+    /// https://developer.fedex.com/api/en-us/catalog/address-validation/v1/docs.html#operation/Validate%20Address
     /// </summary>
-    public UpsHttpClient(
+    public FedExHttpClient(
         HttpClient httpClient, 
-        UpsAddressValidationRequestBuilder builder,
-        string accountKey,
-        string apiUrl)
+        FedExAddressValidationRequestBuilder builder,
+        ShippingCompany shippingCompany)
     {
         _httpClient = httpClient;
-        _httpClient.BaseAddress = new Uri($"{apiUrl}/addressvalidation/v1/1?regionalrequestindicator=string&maximumcandidatelistsize=1");
-        _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accountKey);
+        _builder = builder;
+
+        _httpClient.BaseAddress = new Uri($"{shippingCompany.ApiUrl}/address/v1/addresses/resolve");
+        _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", shippingCompany.AccountKey);
         _httpClient.DefaultRequestHeaders.Add("X-Locale", "en_US");
         _httpClient.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json");
-        _builder = builder;
     }
 
     public async Task<string> ValidateAddress(int addressId)
@@ -28,7 +28,7 @@ class UpsHttpClient : IShippingHttpClient
         await _builder.BuildAddressRequest(addressId);
         var request = _builder.SerializeRequest();
         var content = new StringContent(request, Encoding.UTF8, "application/json");
-        // since we do not have an actual UPS account, return the request payload
+        // since we do not have an actual Fed Ex account, return the request payload
         return request;        // return await _httpClient.PostAsync(_httpClient.BaseAddress, content);
     }
 }

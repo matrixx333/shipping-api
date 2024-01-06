@@ -30,12 +30,13 @@ using (var scope = app.Services.CreateScope())
     dbContext.Database.EnsureCreated();
 }
 
-app.MapPost("/validate-address", async (AddressValidationRequest addressValidationRequest, ShippingHttpClientFactory factory) =>
+app.MapPost("/validate-address", async (AddressValidationRequest addressValidationRequest, ShippingHttpClientFactory factory, ShippingCompanyService shippingCompanyService) =>
 {
     string response;
     using (var scope = app.Services.CreateScope())
     {
-        var httpClient = await factory.CreateClient(addressValidationRequest.ShippingCompanyId);
+        var shippingCompany = await shippingCompanyService.GetShippingCompanyAsync(addressValidationRequest.ShippingCompanyId);
+        var httpClient = factory.CreateHttpClient(shippingCompany);
         response = await httpClient.ValidateAddress(addressValidationRequest.AddressId);    
     }
     return Results.Ok(response);
