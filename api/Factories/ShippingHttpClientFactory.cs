@@ -1,7 +1,5 @@
-class ShippingHttpClientFactory(Func<ShippingCompanyType, IShippingHttpClientFactory> factoryResolver) : IShippingHttpClientFactory
-{
-    private readonly Func<ShippingCompanyType, IShippingHttpClientFactory> factoryResolver = factoryResolver;
-
+class ShippingHttpClientFactory(Func<ShippingCompanyType, IShippingHttpClientFactory> factoryResolver)
+{   
     public IShippingHttpClient CreateHttpClient(ShippingCompany shippingCompany)
     {
         if (!Enum.IsDefined(typeof(ShippingCompanyType), shippingCompany.Id))
