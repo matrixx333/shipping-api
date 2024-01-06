@@ -7,6 +7,38 @@ static class ApplicationServiceExtensions
         services.AddHttpClient<FedExHttpClient>();
     }
 
+    public static void AddFactories(this IServiceCollection services)
+    {
+        services.AddScoped(sp =>
+        {
+            return new UpsHttpClientFactory(
+                sp.GetRequiredService<IHttpClientFactory>(),
+                sp.GetRequiredService<UpsAddressValidationRequestBuilder>()
+            );
+        });
+
+        services.AddScoped(sp =>
+        {
+            return new FedExHttpClientFactory(
+                sp.GetRequiredService<IHttpClientFactory>(),
+                sp.GetRequiredService<FedExAddressValidationRequestBuilder>()
+            );
+        });
+
+        services.AddTransient<Func<ShippingCompanyType, IShippingHttpClientFactory>>(sp => key =>
+        {
+            switch (key)
+            {
+                case ShippingCompanyType.Ups:
+                    return sp.GetRequiredService<UpsHttpClientFactory>();
+                case ShippingCompanyType.FedEx:
+                    return sp.GetRequiredService<FedExHttpClientFactory>();
+                default:
+                    throw new KeyNotFoundException();
+            }
+        });
+    }
+
     public static void AddServices(this IServiceCollection services)
     {
         services.AddScoped<ShippingCompanyService>();
