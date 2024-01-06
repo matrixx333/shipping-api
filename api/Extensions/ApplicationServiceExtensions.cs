@@ -25,18 +25,37 @@ static class ApplicationServiceExtensions
             );
         });
 
-        services.AddTransient<Func<ShippingCompanyType, IShippingHttpClientFactory>>(sp => key =>
+        services.AddTransient<Func<ShippingCompanyType, IShippingHttpClientFactory>>(sp =>
         {
-            switch (key)
+            var factories = new Dictionary<ShippingCompanyType, IShippingHttpClientFactory>
             {
-                case ShippingCompanyType.Ups:
-                    return sp.GetRequiredService<UpsHttpClientFactory>();
-                case ShippingCompanyType.FedEx:
-                    return sp.GetRequiredService<FedExHttpClientFactory>();
-                default:
-                    throw new KeyNotFoundException();
-            }
+                { ShippingCompanyType.Ups, sp.GetRequiredService<UpsHttpClientFactory>() },
+                { ShippingCompanyType.FedEx, sp.GetRequiredService<FedExHttpClientFactory>() },
+            };
+
+            return key =>
+            {
+                if (factories.TryGetValue(key, out var factory))
+                {
+                    return factory;
+                }
+
+                throw new KeyNotFoundException($"No HTTP client factory found for shipping company type: {key}");
+            };
         });
+
+        // services.AddTransient<Func<ShippingCompanyType, IShippingHttpClientFactory>>(sp => key =>
+        // {
+        //     switch (key)
+        //     {
+        //         case ShippingCompanyType.Ups:
+        //             return sp.GetRequiredService<UpsHttpClientFactory>();
+        //         case ShippingCompanyType.FedEx:
+        //             return sp.GetRequiredService<FedExHttpClientFactory>();
+        //         default:
+        //             throw new KeyNotFoundException();
+        //     }
+        // });
     }
 
     public static void AddServices(this IServiceCollection services)
