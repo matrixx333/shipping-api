@@ -10,6 +10,6 @@ class ShippingHttpClientFactory(Func<ShippingCompanyType, IShippingHttpClientFac
         var shippingCompanyType = (ShippingCompanyType)shippingCompany.Id;
         var factory = factoryResolver(shippingCompanyType);
 
-        return factory.CreateHttpClient(shippingCompany);
+        return factory.CreateHttpClient();
     }
 }
