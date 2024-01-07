@@ -1,15 +1,16 @@
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
+var configuration = builder.Configuration;
 
 builder.Services.AddDbContext<ShippingDb>(options =>
     options.UseInMemoryDatabase("Addresses"));
 
 builder.Services.AddServices();
 builder.Services.AddFactories();
-builder.Services.AddHttpClients();
+builder.Services.AddUpsHttpClient(configuration);
+builder.Services.AddFedExHttpClient(configuration);
 builder.Services.AddEndpointsApiExplorer();
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -34,6 +35,7 @@ using (var scope = app.Services.CreateScope())
 
 app.MapPost("/validate-address", async (AddressValidationRequest addressValidationRequest, ShippingHttpClientFactory factory, ShippingCompanyService shippingCompanyService, AddressService addressService) =>
 {
+    //HttpResponseMessage response;
     string response;
     using (var scope = app.Services.CreateScope())
     {

@@ -15,8 +15,8 @@ class ShippingDb : DbContext
         base.OnModelCreating(modelBuilder);
         modelBuilder.Entity<ShippingCompany>()
             .HasData(
-                new ShippingCompany { Id = 1, Name = "UPS", AccountNumber="12345", AccountKey="fda5432fda", ApiUrl="https://wwwcie.ups.com/api"},
-                new ShippingCompany { Id = 2, Name = "Fed Ex", AccountNumber="67890", AccountKey="req987reqw", ApiUrl="https://apis-sandbox.fedex.com"}
+                new ShippingCompany { Id = 1, Name = "UPS", AccountNumber="12345"},
+                new ShippingCompany { Id = 2, Name = "Fed Ex", AccountNumber="67890"}
             );
         modelBuilder.Entity<Address>()
             .HasData(
