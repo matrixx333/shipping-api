@@ -5,7 +5,7 @@ public class FedExHttpClientFactory(IHttpClientFactory httpClientFactory, IAddre
         return new FedExHttpClient
         (
             httpClientFactory.CreateClient("FedExHttpClient"),
-            (FedExAddressValidationRequestBuilder)fedExAddressValidationRequestBuilder
+            fedExAddressValidationRequestBuilder
         );
     }
 }

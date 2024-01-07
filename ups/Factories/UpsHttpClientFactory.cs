@@ -5,7 +5,7 @@ public class UpsHttpClientFactory(IHttpClientFactory httpClientFactory, IAddress
         return new UpsHttpClient
         (
             httpClientFactory.CreateClient("UpsHttpClient"),
-            (UpsAddressValidationRequestBuilder)upsAddressValidationRequestBuilder
+            upsAddressValidationRequestBuilder
         );
     }
 }
