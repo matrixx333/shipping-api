@@ -6,8 +6,8 @@ static class ApplicationServiceExtensions
 {
     public static void AddUpsHttpClient(this IServiceCollection services, IConfiguration config)
     {
-        services.Configure<UpsHttpClientSettings>(config.GetSection("UpsHttpClient"));
-        var clientSettings = config.GetSection("UpsHttpClient").Get<UpsHttpClientSettings>();
+        services.Configure<ShippingCompanyHttpClientSettings>(config.GetSection("UpsHttpClient"));
+        var clientSettings = config.GetSection("UpsHttpClient").Get<ShippingCompanyHttpClientSettings>();
 
         services.AddHttpClient<UpsHttpClient>(client =>
         {
@@ -20,11 +20,11 @@ static class ApplicationServiceExtensions
 
     public static void AddFedExHttpClient(this IServiceCollection services, IConfiguration config)
     {
-        services.Configure<FedExHttpClientSettings>(config.GetSection("FedExHttpClient"));
+        services.Configure<ShippingCompanyHttpClientSettings>(config.GetSection("FedExHttpClient"));
 
         services.AddHttpClient<FedExHttpClient>(client =>
         {
-            var clientSettings = config.GetSection("FedExHttpClient").Get<FedExHttpClientSettings>();
+            var clientSettings = config.GetSection("FedExHttpClient").Get<ShippingCompanyHttpClientSettings>();
             client.BaseAddress = new Uri($"{clientSettings!.Url}/address/v1/addresses/resolve");
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", clientSettings.ApiKey);
             client.DefaultRequestHeaders.Add("X-Locale", "en_US");

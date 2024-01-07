@@ -1,13 +1,13 @@
 class ShippingHttpClientFactory(Func<ShippingCompanyType, IShippingHttpClientFactory> factoryResolver)
 {   
-    public IShippingHttpClient CreateHttpClient(ShippingCompany shippingCompany)
+    public IShippingHttpClient CreateHttpClient(int shippingCompanyId)
     {
-        if (!Enum.IsDefined(typeof(ShippingCompanyType), shippingCompany.Id))
+        if (!Enum.IsDefined(typeof(ShippingCompanyType), shippingCompanyId))
         {
             throw new ArgumentException("Invalid shipping company ID");
         }
 
-        var shippingCompanyType = (ShippingCompanyType)shippingCompany.Id;
+        var shippingCompanyType = (ShippingCompanyType)shippingCompanyId;
         var factory = factoryResolver(shippingCompanyType);
 
         return factory.CreateHttpClient();
