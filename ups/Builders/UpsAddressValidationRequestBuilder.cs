@@ -10,7 +10,7 @@ public class UpsAddressValidationRequestBuilder : IAddressValidationRequestBuild
         };
     }
 
-    public void BuildAddressRequest(Address address)
+    public IAddressValidationRequestBuilder BuildAddressRequest(Address address)
     {
         var address1 = address.Address1 ?? string.Empty;
         var address2 = address.Address2 ?? string.Empty;
@@ -28,6 +28,7 @@ public class UpsAddressValidationRequestBuilder : IAddressValidationRequestBuild
             AddressKeyFormat = addressKeyFormat
         };
         _payload.XAVRequest = [xavRequest];
+        return this;
     }
 
     public string SerializeRequest()

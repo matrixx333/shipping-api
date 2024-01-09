@@ -1,11 +1,10 @@
-public class FedExHttpClientFactory(IHttpClientFactory httpClientFactory, IAddressValidationRequestBuilder fedExAddressValidationRequestBuilder) : IShippingHttpClientFactory
+public class FedExHttpClientFactory(IHttpClientFactory httpClientFactory) : IShippingProviderHttpClientFactory
 {
-    public IShippingHttpClient CreateHttpClient()
+    public IShippingProviderHttpClient CreateHttpClient()
     {
         return new FedExHttpClient
         (
-            httpClientFactory.CreateClient("FedExHttpClient"),
-            fedExAddressValidationRequestBuilder
+            httpClientFactory.CreateClient("FedExHttpClient")
         );
     }
 }

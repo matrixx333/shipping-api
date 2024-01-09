@@ -8,7 +8,9 @@ builder.Services.AddDbContext<ShippingDb>(options =>
     options.UseInMemoryDatabase("Addresses"));
 
 builder.Services.AddServices();
+builder.Services.AddBuilders();
 builder.Services.AddFactories();
+builder.Services.AddFactoryResolvers();
 builder.Services.AddUpsHttpClient(configuration);
 builder.Services.AddFedExHttpClient(configuration);
 builder.Services.AddEndpointsApiExplorer();
@@ -36,19 +38,26 @@ using (var scope = app.Services.CreateScope())
 app.MapPost("/validate-address", async
 (
     AddressValidationRequest addressValidationRequest,
-    ShippingHttpClientFactory factory,
-    ShippingCompanyService shippingCompanyService,
-    AddressService addressService
+    AddressService addressService,
+    UriEndpointProvider uriEndpointProvider,
+    ShippingProviderHttpClientFactory httpClientFactory,
+    AddressValidationBuilderFactory addressValidationBuilderFactory
 ) =>
 {
     //HttpResponseMessage response;
     string response;
     using (var scope = app.Services.CreateScope())
     {
-        var shippingCompany = await shippingCompanyService.GetShippingCompanyAsync(addressValidationRequest.ShippingCompanyId);
-        var httpClient = factory.CreateHttpClient(addressValidationRequest.ShippingCompanyId);
+        var addressValidationRequestBuilder = addressValidationBuilderFactory.CreateBuilderFactory(addressValidationRequest.ShippingCompanyId);
         var address = await addressService.GetAddressAsync(addressValidationRequest.AddressId);
-        response = await httpClient.ValidateAddress(address);
+
+        var requestPayload = addressValidationRequestBuilder
+                                .BuildAddressRequest(address)
+                                .SerializeRequest();
+
+        var addressValidationEndpoint = uriEndpointProvider.GetAddressValidationEndpoint(addressValidationRequest.ShippingCompanyId);
+        var httpClient = httpClientFactory.CreateHttpClientFactory(addressValidationRequest.ShippingCompanyId);
+        response = httpClient.SendRequest(addressValidationEndpoint, requestPayload);
     }
     return Results.Ok(response);
 })

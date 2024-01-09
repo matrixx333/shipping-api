@@ -1,34 +1,22 @@
 using System.Net.Http.Headers;
 using System.Text;
 
-public class UpsHttpClient : IShippingHttpClient
+public class UpsHttpClient : IShippingProviderHttpClient
 {
     private readonly HttpClient _httpClient;
-    private IAddressValidationRequestBuilder _builder;
 
     /// <summary>
     /// https://developer.ups.com/api/reference?loc=en_US#operation/AddressValidation
     /// </summary>
-    public UpsHttpClient(
-        HttpClient httpClient, 
-        IAddressValidationRequestBuilder builder)
+    public UpsHttpClient(HttpClient httpClient)
     {
-        _httpClient = httpClient;        
-        _builder = builder;
+        _httpClient = httpClient;
     }
 
-    public async Task<string> ValidateAddress(Address address)
+    public string SendRequest(string url, string requestPayload)
     {
-        var request = BuildAddressRequest(address);
-        var content = new StringContent(request, Encoding.UTF8, "application/json");
-        // since we do not have an actual UPS account, return the request payload        
-        //return await _httpClient.PostAsync(_httpClient.BaseAddress, content);
-        return request;
-    }
-
-    private string BuildAddressRequest(Address address)
-    {
-        _builder.BuildAddressRequest(address);
-        return _builder.SerializeRequest();
+        var content = new StringContent(requestPayload, Encoding.UTF8, "application/json");
+        //var response = _httpClient.PostAsync(url, content);
+        return requestPayload;
     }
 }
