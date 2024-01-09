@@ -6,56 +6,92 @@ static class ApplicationServiceExtensions
 {
     public static void AddUpsHttpClient(this IServiceCollection services, IConfiguration config)
     {
-        services.Configure<ShippingCompanyHttpClientSettings>(config.GetSection("UpsHttpClient"));
-        var clientSettings = config.GetSection("UpsHttpClient").Get<ShippingCompanyHttpClientSettings>();
+        services.Configure<ShippingProviderHttpClientSettings>(config.GetSection("UpsHttpClient"));
+        var clientSettings = config.GetSection("UpsHttpClient").Get<ShippingProviderHttpClientSettings>();
 
         services.AddHttpClient<UpsHttpClient>(client =>
         {
-            client.BaseAddress = new Uri($"{clientSettings!.Url}/addressvalidation/v1/1?regionalrequestindicator=string&maximumcandidatelistsize=1");
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", clientSettings.ApiKey);
+            client.BaseAddress = new Uri(clientSettings!.BaseAddress);
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", clientSettings!.ApiKey);
             client.DefaultRequestHeaders.Add("X-Locale", "en_US");
             client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json");
-        });        
+        });
     }
 
     public static void AddFedExHttpClient(this IServiceCollection services, IConfiguration config)
     {
-        services.Configure<ShippingCompanyHttpClientSettings>(config.GetSection("FedExHttpClient"));
+        services.Configure<ShippingProviderHttpClientSettings>(config.GetSection("FedExHttpClient"));
+        var clientSettings = config.GetSection("FedExHttpClient").Get<ShippingProviderHttpClientSettings>();
 
         services.AddHttpClient<FedExHttpClient>(client =>
         {
-            var clientSettings = config.GetSection("FedExHttpClient").Get<ShippingCompanyHttpClientSettings>();
-            client.BaseAddress = new Uri($"{clientSettings!.Url}/address/v1/addresses/resolve");
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", clientSettings.ApiKey);
+            client.BaseAddress = new Uri(clientSettings!.BaseAddress);
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", clientSettings!.ApiKey);
             client.DefaultRequestHeaders.Add("X-Locale", "en_US");
             client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json");
         });
     }
 
+    public static void AddBuilders(this IServiceCollection services)
+    {
+        services.AddScoped<UpsAddressValidationRequestBuilder>();
+        services.AddScoped<FedExAddressValidationRequestBuilder>();      
+    }
+
     public static void AddFactories(this IServiceCollection services)
     {
+        services.AddScoped<ShippingProviderHttpClientFactory>();
+        
         services.AddScoped(sp =>
         {
-            return new UpsHttpClientFactory(
-                sp.GetRequiredService<IHttpClientFactory>(),
-                sp.GetRequiredService<UpsAddressValidationRequestBuilder>()
-            );
+            return new UpsHttpClientFactory(sp.GetRequiredService<IHttpClientFactory>());
         });
 
         services.AddScoped(sp =>
         {
-            return new FedExHttpClientFactory(
-                sp.GetRequiredService<IHttpClientFactory>(),
-                sp.GetRequiredService<FedExAddressValidationRequestBuilder>()
-            );
+            return new FedExHttpClientFactory(sp.GetRequiredService<IHttpClientFactory>());
         });
 
-        services.AddTransient<Func<ShippingCompanyType, IShippingHttpClientFactory>>(sp =>
+        services.AddScoped<AddressValidationBuilderFactory>();
+
+        services.AddScoped(sp =>
         {
-            var factories = new Dictionary<ShippingCompanyType, IShippingHttpClientFactory>
+            return new UpsAddressValidationBuilderFactory();
+        });
+
+        services.AddScoped(sp =>
+        {
+            return new FedExAddressValidationBuilderFactory();
+        });
+    }
+
+    public static void AddFactoryResolvers(this IServiceCollection services)
+    {
+        services.AddTransient<Func<ShippingProviderType, IAddressValidationRequestBuilderFactory>>(sp =>
+        {
+            var factories = new Dictionary<ShippingProviderType, IAddressValidationRequestBuilderFactory>
             {
-                { ShippingCompanyType.Ups, sp.GetRequiredService<UpsHttpClientFactory>() },
-                { ShippingCompanyType.FedEx, sp.GetRequiredService<FedExHttpClientFactory>() }
+                { ShippingProviderType.Ups, sp.GetRequiredService<UpsAddressValidationBuilderFactory>() },
+                { ShippingProviderType.FedEx, sp.GetRequiredService<FedExAddressValidationBuilderFactory>() }
+            };
+
+            return key =>
+            {
+                if (factories.TryGetValue(key, out var factory))
+                {
+                    return factory;
+                }
+
+                throw new KeyNotFoundException($"No address validation request builder found for shipping company type: {key}");
+            };
+        });
+
+        services.AddTransient<Func<ShippingProviderType, IShippingProviderHttpClientFactory>>(sp =>
+        {
+            var factories = new Dictionary<ShippingProviderType, IShippingProviderHttpClientFactory>
+            {
+                { ShippingProviderType.Ups, sp.GetRequiredService<UpsHttpClientFactory>() },
+                { ShippingProviderType.FedEx, sp.GetRequiredService<FedExHttpClientFactory>() }
             };
 
             return key =>
@@ -74,8 +110,6 @@ static class ApplicationServiceExtensions
     {
         services.AddScoped<ShippingCompanyService>();
         services.AddScoped<AddressService>();
-        services.AddScoped<UpsAddressValidationRequestBuilder>();
-        services.AddScoped<FedExAddressValidationRequestBuilder>();
-        services.AddScoped<ShippingHttpClientFactory>();
+        services.AddScoped<UriEndpointProvider>();
     }
 }

@@ -9,7 +9,7 @@ public class FedExAddressValidationRequestBuilder : IAddressValidationRequestBui
         };
     }
    
-    public void BuildAddressRequest(global::Address address)
+    public IAddressValidationRequestBuilder BuildAddressRequest(global::Address address)
     {
         var address1 = address.Address1 ?? string.Empty;
         var address2 = address.Address2 ?? string.Empty;
@@ -22,6 +22,7 @@ public class FedExAddressValidationRequestBuilder : IAddressValidationRequestBui
             CountryCode = address.CountryCode
         };        
         _payload.AddressesToValidate = [addressToValidate];
+        return this;
     }
    
     public string SerializeRequest()

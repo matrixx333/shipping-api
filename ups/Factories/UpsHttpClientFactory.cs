@@ -1,11 +1,10 @@
-public class UpsHttpClientFactory(IHttpClientFactory httpClientFactory, IAddressValidationRequestBuilder upsAddressValidationRequestBuilder) : IShippingHttpClientFactory
+public class UpsHttpClientFactory(IHttpClientFactory httpClientFactory) : IShippingProviderHttpClientFactory
 {
-    public IShippingHttpClient CreateHttpClient()
+    public IShippingProviderHttpClient CreateHttpClient()
     {
         return new UpsHttpClient
         (
-            httpClientFactory.CreateClient("UpsHttpClient"),
-            upsAddressValidationRequestBuilder
+            httpClientFactory.CreateClient("UpsHttpClient")
         );
     }
 }
