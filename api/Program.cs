@@ -48,7 +48,7 @@ app.MapPost("/validate-address", async
     string response;
     using (var scope = app.Services.CreateScope())
     {
-        var addressValidationRequestBuilder = addressValidationBuilderFactory.CreateBuilderFactory(addressValidationRequest.ShippingCompanyId);
+        var addressValidationRequestBuilder = addressValidationBuilderFactory.CreateBuilder(addressValidationRequest.ShippingCompanyId);
         var address = await addressService.GetAddressAsync(addressValidationRequest.AddressId);
 
         var requestPayload = addressValidationRequestBuilder
@@ -56,7 +56,7 @@ app.MapPost("/validate-address", async
                                 .SerializeRequest();
 
         var addressValidationEndpoint = uriEndpointProvider.GetAddressValidationEndpoint(addressValidationRequest.ShippingCompanyId);
-        var httpClient = httpClientFactory.CreateHttpClientFactory(addressValidationRequest.ShippingCompanyId);
+        var httpClient = httpClientFactory.CreateHttpClient(addressValidationRequest.ShippingCompanyId);
         response = httpClient.SendRequest(addressValidationEndpoint, requestPayload);
     }
     return Results.Ok(response);
