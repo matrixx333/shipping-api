@@ -27,6 +27,6 @@ jobs:
     - name: Deploy to Azure App Service
       uses: azure/webapps-deploy@v2
       with:
-        app-name: '<app-name>'  # Set this to your Azure App Service name
-        publish-profile: '${{ secrets.AzureAppService_PublishProfile }}'  # Set this to your Azure App Service publish profile secret
+        app-name: 'shipping-api'  # Set this to your Azure App Service name
+        publish-profile: '${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE }}'  # Set this to your Azure App Service publish profile secret
         package: './output'
