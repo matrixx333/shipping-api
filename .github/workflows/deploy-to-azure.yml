@@ -1,0 +1,32 @@
+name: Build and Deploy to Azure App Service
+
+on:
+  push:
+    branches:
+      - main  # Set this to your default branch
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: '8.0'  # Set this to your .NET Core version
+
+    - name: Build with dotnet
+      run: dotnet build --configuration Release
+
+    - name: Publish with dotnet
+      run: dotnet publish --configuration Release --output ./output
+
+    - name: Deploy to Azure App Service
+      uses: azure/webapps-deploy@v2
+      with:
+        app-name: '<app-name>'  # Set this to your Azure App Service name
+        publish-profile: '${{ secrets.AzureAppService_PublishProfile }}'  # Set this to your Azure App Service publish profile secret
+        package: './output'
