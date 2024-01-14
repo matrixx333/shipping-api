@@ -11,10 +11,10 @@ jobs:
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4.1.1
 
     - name: Setup .NET Core
-      uses: actions/setup-dotnet@v1
+      uses: actions/setup-dotnet@v4
       with:
         dotnet-version: '8.0'  # Set this to your .NET Core version
 
@@ -25,7 +25,7 @@ jobs:
       run: dotnet publish --configuration Release --output ./output
 
     - name: Deploy to Azure App Service
-      uses: azure/webapps-deploy@v2
+      uses: azure/webapps-deploy@v3
       with:
         app-name: 'shipping-api'  # Set this to your Azure App Service name
         publish-profile: '${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE }}'  # Set this to your Azure App Service publish profile secret
