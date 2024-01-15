@@ -16,7 +16,7 @@ static class ApplicationServiceExtensions
 
         services.AddHttpClient<UpsHttpClient>(client =>
         {
-            client.BaseAddress = baseAddress != null ? new Uri(baseAddress) : null;
+            client.BaseAddress = baseAddress is not null ? new Uri(baseAddress) : null;
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", apiKey);
             client.DefaultRequestHeaders.Add("X-Locale", "en_US");
             client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json");
