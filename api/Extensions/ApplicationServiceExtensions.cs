@@ -4,29 +4,39 @@ using Microsoft.Extensions.Options;
 
 static class ApplicationServiceExtensions
 {
-    public static void AddUpsHttpClient(this IServiceCollection services, IConfiguration config)
+    public static void AddUpsHttpClient(this IServiceCollection services, IConfiguration config, IHostEnvironment env)
     {
-        services.Configure<ShippingProviderHttpClientSettings>(config.GetSection("UpsHttpClient"));
-        var clientSettings = config.GetSection("UpsHttpClient").Get<ShippingProviderHttpClientSettings>();
+        if (env.IsDevelopment())
+        {
+            services.Configure<ShippingProviderHttpClientSettings>(config.GetSection("UpsHttpClient"));
+        }
+
+        var baseAddress = config["UpsHttpClient:BaseAddress"];
+        var apiKey = config["UpsHttpClient:ApiKey"];
 
         services.AddHttpClient<UpsHttpClient>(client =>
         {
-            client.BaseAddress = new Uri(clientSettings!.BaseAddress);
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", clientSettings!.ApiKey);
+            client.BaseAddress = baseAddress != null ? new Uri(baseAddress) : null;
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", apiKey);
             client.DefaultRequestHeaders.Add("X-Locale", "en_US");
             client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json");
         });
     }
 
-    public static void AddFedExHttpClient(this IServiceCollection services, IConfiguration config)
+    public static void AddFedExHttpClient(this IServiceCollection services, IConfiguration config, IHostEnvironment env)
     {
-        services.Configure<ShippingProviderHttpClientSettings>(config.GetSection("FedExHttpClient"));
-        var clientSettings = config.GetSection("FedExHttpClient").Get<ShippingProviderHttpClientSettings>();
+        if (env.IsDevelopment())
+        {
+            services.Configure<ShippingProviderHttpClientSettings>(config.GetSection("UpsHttpClient"));
+        }
+
+        var baseAddress = config["FedExHttpClient:BaseAddress"];
+        var apiKey = config["FedExHttpClient:ApiKey"];
 
         services.AddHttpClient<FedExHttpClient>(client =>
         {
-            client.BaseAddress = new Uri(clientSettings!.BaseAddress);
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", clientSettings!.ApiKey);
+            client.BaseAddress = baseAddress != null ? new Uri(baseAddress) : null;
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", apiKey);
             client.DefaultRequestHeaders.Add("X-Locale", "en_US");
             client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json");
         });
