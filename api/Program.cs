@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
+using Azure.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;
@@ -11,8 +12,8 @@ builder.Services.AddServices();
 builder.Services.AddBuilders();
 builder.Services.AddFactories();
 builder.Services.AddFactoryResolvers();
-builder.Services.AddUpsHttpClient(configuration);
-builder.Services.AddFedExHttpClient(configuration);
+builder.Services.AddUpsHttpClient(configuration, builder.Environment);
+builder.Services.AddFedExHttpClient(configuration, builder.Environment);
 builder.Services.AddEndpointsApiExplorer();
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -25,6 +26,21 @@ builder.Services.AddSwaggerGen(options =>
         Description = "API for validating shipping addresses from different shipping providers.",
     });
 });
+
+var isDevelopment = builder.Environment.IsDevelopment();
+
+if (!isDevelopment)
+{
+    var appConfigEndpoint = Environment.GetEnvironmentVariable("AzureAppConfigurationEndpoint");
+    // Add Azure App Configuration
+    if (appConfigEndpoint is not null)
+    {
+        builder.Configuration.AddAzureAppConfiguration(options =>
+        {
+            options.Connect(new Uri(appConfigEndpoint), new DefaultAzureCredential());
+        });
+    }
+}
 
 var app = builder.Build();
 
