@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Azure.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -27,6 +28,23 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+}).AddJwtBearer(options =>
+{
+    options.Authority = $"https://{configuration["Auth0:Domain"]}/";
+    options.TokenValidationParameters =
+        new Microsoft.IdentityModel.Tokens.TokenValidationParameters
+        {
+            ValidAudience = configuration["Auth0:Audience"],
+            ValidIssuer = $"{configuration["Auth0:Domain"]}",
+            ValidateLifetime = true,
+        };
+});
+builder.Services.AddAuthorization();
+
 var isDevelopment = builder.Environment.IsDevelopment();
 
 if (!isDevelopment)
@@ -44,6 +62,9 @@ if (!isDevelopment)
 
 var app = builder.Build();
 
+app.UseAuthentication();
+app.UseAuthorization();
+
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
@@ -53,7 +74,7 @@ using (var scope = app.Services.CreateScope())
 
 app.MapPost("/validate-address", async
 (
-    AddressValidationRequest addressValidationRequest,
+    AddressValidationRequest request,
     AddressService addressService,
     UriEndpointProvider uriEndpointProvider,
     ShippingProviderHttpClientFactory httpClientFactory,
@@ -63,21 +84,22 @@ app.MapPost("/validate-address", async
     //HttpResponseMessage response;
     string response;
     using var scope = app.Services.CreateScope();
-    
-    var addressValidationRequestBuilder = addressValidationBuilderFactory.CreateBuilder(addressValidationRequest.ShippingCompanyId);
-    var address = await addressService.GetAddressAsync(addressValidationRequest.AddressId);
+
+    var addressValidationRequestBuilder = addressValidationBuilderFactory.CreateBuilder(request.ShippingCompanyId);
+    var address = await addressService.GetAddressAsync(request.AddressId);
 
     var requestPayload = addressValidationRequestBuilder
                             .BuildAddressRequest(address)
                             .SerializeRequest();
 
-    var addressValidationEndpoint = uriEndpointProvider.GetAddressValidationEndpoint(addressValidationRequest.ShippingCompanyId);
-    var httpClient = httpClientFactory.CreateHttpClient(addressValidationRequest.ShippingCompanyId);
+    var addressValidationEndpoint = uriEndpointProvider.GetAddressValidationEndpoint(request.ShippingCompanyId);
+    var httpClient = httpClientFactory.CreateHttpClient(request.ShippingCompanyId);
     response = httpClient.SendRequest(addressValidationEndpoint, requestPayload);
 
     return Results.Ok(response);
 })
-.WithTags("ValidateAddresses");
+.WithTags("ValidateAddresses")
+.RequireAuthorization();
 
 app.UseSwagger();
 app.UseSwaggerUI();
