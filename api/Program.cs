@@ -39,8 +39,7 @@ builder.Services.AddAuthentication(options =>
         new Microsoft.IdentityModel.Tokens.TokenValidationParameters
         {
             ValidAudience = configuration["Auth0:Audience"],
-            ValidIssuer = $"{configuration["Auth0:Domain"]}",
-            ValidateLifetime = true,
+            ValidIssuer = $"{builder.Configuration["Auth0:Domain"]}"
         };
 });
 builder.Services.AddAuthorization();
