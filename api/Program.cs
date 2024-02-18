@@ -44,21 +44,6 @@ builder.Services.AddAuthentication(options =>
 });
 builder.Services.AddAuthorization();
 
-var isDevelopment = builder.Environment.IsDevelopment();
-
-if (!isDevelopment)
-{
-    var appConfigEndpoint = Environment.GetEnvironmentVariable("AzureAppConfigurationEndpoint");
-    // Add Azure App Configuration
-    if (appConfigEndpoint is not null)
-    {
-        builder.Configuration.AddAzureAppConfiguration(options =>
-        {
-            options.Connect(new Uri(appConfigEndpoint), new DefaultAzureCredential());
-        });
-    }
-}
-
 var app = builder.Build();
 
 app.UseAuthentication();
