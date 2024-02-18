@@ -6,3 +6,9 @@
 
 # Ignore the secrets file
 **/secrets.json
+
+# Ignore the api/appsettings.Development.json file
+**/api/appsettings.Development.json
+
+# Ignore the api/appsettings.json file
+**/api/appsettings.json
