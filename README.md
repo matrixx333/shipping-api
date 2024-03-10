@@ -10,10 +10,6 @@ In the end, the internal web application would create a POST request to the cust
 
 # Project Structure 
 
-## Builders
-
-This folder contains the 'Builder' objects for each of the shipping providers. The Builder objects are responsible for creating the json payload that the API endpoint expects. Once it is done building the request payload, it serializes the object and returns the request. 
-
 ## Extenions
 
 This folder is a place to aggregate IServiceCollection extension methods.
