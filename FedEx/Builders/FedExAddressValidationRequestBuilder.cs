@@ -8,23 +8,23 @@ public class FedExAddressValidationRequestBuilder : IAddressValidationRequestBui
             AddressesToValidate = []
         };
     }
-   
-    public IAddressValidationRequestBuilder BuildAddressRequest(global::Address address)
+
+    public IAddressValidationRequestBuilder BuildAddressRequest(Address address)
     {
         var address1 = address.Address1 ?? string.Empty;
         var address2 = address.Address2 ?? string.Empty;
-        var addressToValidate = new Address()
+        var addressToValidate = new AddressToValidate()
         {
             StreetLines = [address1, address2],
             StateOrProvinceCode = address.State,
             City = address.City,
             PostalCode = address.ZipCode,
             CountryCode = address.CountryCode
-        };        
+        };
         _payload.AddressesToValidate = [addressToValidate];
         return this;
     }
-   
+
     public string SerializeRequest()
     {
         return SerializationHelper.SerializeRequest(_payload);
@@ -32,16 +32,15 @@ public class FedExAddressValidationRequestBuilder : IAddressValidationRequestBui
 
     private class FedExAddressValidationPayload
     {
-        public required Address[] AddressesToValidate { get; set; }
+        public required AddressToValidate[] AddressesToValidate { get; set; }
     }
 
-    private class Address
+    private class AddressToValidate
     {
         public required string[] StreetLines { get; set; }
         public required string City { get; set; }
         public required string StateOrProvinceCode { get; set; }
         public required string PostalCode { get; set; }
         public string? CountryCode { get; set; }
-        Boolean Residential { get; set; }
     }
 }
