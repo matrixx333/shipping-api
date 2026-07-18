@@ -8,5 +8,5 @@
 **/secrets.json
 
 # Ignore the appsettings files
-api/appsettings.Development.json
-api/appsettings.json
+Api/appsettings.Development.json
+Api/appsettings.json

@@ -19,10 +19,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ups\ups.csproj" />
-    <ProjectReference Include="..\fed-ex\fed-ex.csproj" />
-    <ProjectReference Include="..\common\common.csproj" />
-    <ProjectReference Include="..\models\models.csproj" />
+    <ProjectReference Include="..\Ups\Ups.csproj" />
+    <ProjectReference Include="..\FedEx\FedEx.csproj" />
+    <ProjectReference Include="..\Common\Common.csproj" />
+    <ProjectReference Include="..\Models\Models.csproj" />
   </ItemGroup>
 
 </Project>
