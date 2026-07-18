@@ -10,3 +10,6 @@
 # Ignore the appsettings files
 Api/appsettings.Development.json
 Api/appsettings.json
+.claude/
+.agents/
+.vscode/
