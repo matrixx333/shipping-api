@@ -1,41 +1,120 @@
-# Overview
+# Shipping API
 
-This ASP.NET Core Web API project was created to demonstrate how I solved a customer's real world problem. The customer had a database that contained shipping addresses for customers. It also contained the account credentials for the shipping providers that they used (Fed Ex, UPS, etc.)
+An ASP.NET Core minimal API that validates shipping addresses through multiple shipping providers (UPS, FedEx). It demonstrates how to solve a real-world integration problem: a customer's internal web app needs to validate addresses against several shipping carriers, each with its own request schema and API contract.
 
-They wanted a way to be able to validate addresses, get rates on shipping, and print shipping labels from these various shipping providers using their internal web application. This code only demonstrates the ability to validate a shipping address, but, it was originally developed to solve the all of the customer's requests. 
+An internal web app POSTs a `shippingCompanyId` and `addressId`. The API looks up the address in a database, builds a provider-specific JSON payload for that carrier, and forwards it to the provider's address validation endpoint.
 
-Each shipping provider uses their own schema definition when it comes to submitting requests to their API. Therefore, it was necessary to develop a solution that allowed each of the API request objects to be built in a unique way.
+> [!NOTE]
+> This project does not call live provider APIs. `UpsHttpClient` and `FedExHttpClient` simply echo the serialized payload back to the caller — the real `PostAsync` call is commented out, since there are no live UPS/FedEx developer accounts backing this demo. It exists to showcase the request-building architecture, not a production integration.
 
-In the end, the internal web application would create a POST request to the customer's shipping API (this project). This in turn would submit a request to the shipping provider, then the response was formatted and delivered back to the internal web application for the customer to be able to view the result. 
+## Features
 
-# Project Structure 
+- **Multi-provider address validation** — UPS and FedEx today, with a pattern designed to add more without touching existing code.
+- **Provider-keyed factory-of-factories dispatch** — the right request builder and HTTP client are resolved at request time from a `ShippingProviderType`, not wired up per-provider at compile time.
+- **Builder pattern for provider payloads** — each provider's wire format (UPS's nested `XAVRequest.AddressKeyFormat`, FedEx's `AddressesToValidate`) is modeled with private DTOs local to that provider's builder, kept separate from the shared `Address` model.
+- **Auth0-protected endpoint** — `POST /validate-address` requires a valid JWT bearer token.
+- **Swagger UI** for exploring and testing the endpoint locally.
 
-## Extenions
+## Architecture
 
-This folder is a place to aggregate IServiceCollection extension methods.
+Six projects, with dependencies flowing one way:
 
-## HttpClients
+```mermaid
+graph LR
+    Api --> Ups
+    Api --> FedEx
+    Ups --> Common
+    FedEx --> Common
+    Common --> Helpers
+    Common --> Models
+    Ups --> Models
+    FedEx --> Models
+    Helpers --> Models
+```
 
-This folder contains the http clients that have been configured to call each shipping providers unique API endpoint URI. 
+| Project | Responsibility |
+|---|---|
+| [Models](Models) | Plain POCOs shared everywhere (`Address`, `ShippingCompany`, `AddressValidationRequest`, `ShippingProviderType`). No dependencies. |
+| [Helpers](Helpers) | `SerializationHelper`, a thin `System.Text.Json` wrapper. No dependencies. |
+| [Common](Common) | Provider-agnostic contracts every provider implements: `IAddressValidationRequestBuilder`, `IAddressValidationRequestBuilderFactory`, `IShippingProviderHttpClient`, `IShippingProviderHttpClientFactory`, `ISerializableRequest`. |
+| [Ups](Ups) / [FedEx](FedEx) | One project per shipping provider, each implementing the `Common` contracts with that provider's own request schema. |
+| [Api](Api) | The ASP.NET Core host: the minimal API endpoint, an EF Core InMemory `DbContext`, DI wiring, and the factory-of-factories that dispatches by provider. |
 
-The API documentation that was used can be found at the following locations: 
+### Request flow
 
-UPS Address Validation: https://developer.ups.com/api/reference?loc=en_US#operation/AddressValidation
+1. `Api/Program.cs` receives `POST /validate-address` with a `shippingCompanyId` and `addressId`.
+2. `AddressValidationBuilderFactory` resolves the matching `IAddressValidationRequestBuilder` for that provider.
+3. `AddressService` loads the `Address` from `ShippingDb`.
+4. The builder turns the `Address` into the provider's JSON payload and serializes it.
+5. `ShippingProviderHttpClientFactory` resolves the matching `IShippingProviderHttpClient` and sends the payload to the provider's endpoint (looked up via `UriEndpointProvider`).
 
-Fed Ex Address Validation: https://developer.fedex.com/api/en-us/catalog/address-validation/v1/docs.html#operation/Validate%20Address
+Both factories derive from [`BaseFactory<TFactory>`](Api/Factories/BaseFactory.cs), which validates the `shippingCompanyId` and resolves the right per-provider factory through an injected `Func<ShippingProviderType, TFactory>` delegate. See [CLAUDE.md](CLAUDE.md) for a deeper walkthrough of the dispatch pattern and step-by-step instructions for adding a new provider.
 
-## Models
+## Getting started
 
-These represent the POCO objects that are returned from the customer's database that stores both the shipping addresses, and shipping company account details.
+### Prerequisites
 
-## Services
+- [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
+- An [Auth0](https://auth0.com/) tenant (for issuing bearer tokens against the protected endpoint)
 
-These are the service objects that have a dependency on the database. They are able to retrieve database records provided a given key to search by.
+### Setup
 
-## Program.cs
+1. Clone the repository and restore dependencies:
 
-This is the main entry point into the API. There is a single POST endpoint ('validate-address') for validating addresses. The request object that is sent as part of the POST contains the shippingCompanyId for the specific shipping provider along with an addressId that is used to obtain the address that is stored in the database. The address record is retrieved using the addressId, then it is built as part of the API request that is sent to the shipping provider. 
+   ```bash
+   dotnet restore
+   ```
 
-# Disclaimer 
+2. Create `Api/appsettings.Development.json` (gitignored — it holds provider API keys) with the following shape:
 
-This code currently does not actually connect to a shipping providers API. I do not have accounts with Fed Ex or UPS, therefore, no calls can be authenticated. 
+   ```json
+   {
+     "Auth0": { "Domain": "...", "Audience": "..." },
+     "UpsHttpClient": { "BaseAddress": "...", "ApiKey": "...", "AddressValidationEndpoint": "..." },
+     "FedExHttpClient": { "BaseAddress": "...", "ApiKey": "...", "AddressValidationEndpoint": "..." }
+   }
+   ```
+
+3. Run the API:
+
+   ```bash
+   dotnet run --project Api
+   ```
+
+   Swagger UI opens at `/swagger`. For hot reload during development, use `dotnet watch --project Api run` instead.
+
+### Try it out
+
+Two seeded addresses and two seeded shipping companies (`1` = UPS, `2` = FedEx) are available out of the box via the InMemory database — see [Api/shipping-api.http](Api/shipping-api.http) for ready-to-run requests:
+
+```http
+POST http://localhost:5242/validate-address
+Content-Type: application/json
+Authorization: Bearer <token>
+
+{
+    "ShippingCompanyId": 1,
+    "AddressId": 1
+}
+```
+
+The response is the serialized provider payload that would have been sent to UPS or FedEx.
+
+## Adding a new shipping provider
+
+The provider-keyed factory pattern is designed so a new carrier can be added without touching existing provider code:
+
+1. Add a value to `ShippingProviderType`.
+2. Create a new project mirroring the `Ups`/`FedEx` layout (`Builders/`, `Factories/`, `HttpClients/`), implementing the `Common` interfaces.
+3. Register the project in `shipping-api.sln` and reference it from `Api.csproj`.
+4. Wire it into `ApplicationServiceExtensions` — an `Add<Provider>HttpClient` method, factory registrations, and a `ShippingProviderType` mapping in both resolver dictionaries.
+5. Add the provider's config section and extend `UriEndpointProvider` with its endpoint lookup.
+
+Full details, including which parts of the pattern must stay in sync, are documented in [CLAUDE.md](CLAUDE.md).
+
+## Deployment
+
+[create-azure-app-service.ps1](create-azure-app-service.ps1) provisions a resource group, a Free-tier App Service plan, and an App Service on Azure via the Azure CLI as a starting point for hosting the API.
+
+> [!IMPORTANT]
+> There is no test project in this solution currently, and the data layer is EF Core's InMemory provider seeded with hardcoded rows — there is no real database or migrations. Both stand in for pieces that would back a production deployment.
