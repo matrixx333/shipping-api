@@ -42,12 +42,6 @@ static class ApplicationServiceExtensions
         });
     }
 
-    public static void AddBuilders(this IServiceCollection services)
-    {
-        services.AddScoped<UpsAddressValidationRequestBuilder>();
-        services.AddScoped<FedExAddressValidationRequestBuilder>();      
-    }
-
     public static void AddFactories(this IServiceCollection services)
     {
         services.AddScoped<ShippingProviderHttpClientFactory>();

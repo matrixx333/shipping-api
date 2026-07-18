@@ -10,7 +10,6 @@ builder.Services.AddDbContext<ShippingDb>(options =>
     options.UseInMemoryDatabase("Addresses"));
 
 builder.Services.AddServices();
-builder.Services.AddBuilders();
 builder.Services.AddFactories();
 builder.Services.AddFactoryResolvers();
 builder.Services.AddUpsHttpClient(configuration, builder.Environment);
