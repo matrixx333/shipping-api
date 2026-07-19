@@ -64,7 +64,7 @@ public class UriEndpointProviderTests
     }
 
     [Test]
-    public void GetAddressValidationEndpoint_WithUndefinedShippingCompanyId_ThrowsArgumentException()
+    public void GetAddressValidationEndpoint_WithUndefinedId_ThrowsArgumentException()
     {
         // Arrange
         var sut = _harness.Build();

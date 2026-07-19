@@ -27,9 +27,11 @@ public class UriEndpointProviderHarness
         return this;
     }
 
-    public UriEndpointProviderHarness GivenDevelopment() => GivenEnvironment(Environments.Development);
+    public UriEndpointProviderHarness GivenDevelopment() =>
+        GivenEnvironment(Environments.Development);
 
-    public UriEndpointProviderHarness GivenProduction() => GivenEnvironment(Environments.Production);
+    public UriEndpointProviderHarness GivenProduction() =>
+        GivenEnvironment(Environments.Production);
 
     public UriEndpointProviderHarness GivenUpsAddressValidationEndpoint(string endpoint)
     {

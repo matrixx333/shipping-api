@@ -50,11 +50,15 @@ public class ApplicationServiceExtensionsTests
         using var provider = BuildFullProvider();
         using var scope = provider.CreateScope();
         var resolver = scope.ServiceProvider
-            .GetRequiredService<Func<ShippingProviderType, IAddressValidationRequestBuilderFactory>>();
+            .GetRequiredService
+            <
+                Func<ShippingProviderType, IAddressValidationRequestBuilderFactory>
+            >();
 
         // Act / Assert
         resolver(ShippingProviderType.Ups).Should().BeOfType<UpsAddressValidationBuilderFactory>();
-        resolver(ShippingProviderType.FedEx).Should().BeOfType<FedExAddressValidationBuilderFactory>();
+        resolver(ShippingProviderType.FedEx).Should()
+            .BeOfType<FedExAddressValidationBuilderFactory>();
 
         Action unknown = () => resolver((ShippingProviderType)999);
         unknown.Should().Throw<KeyNotFoundException>();
