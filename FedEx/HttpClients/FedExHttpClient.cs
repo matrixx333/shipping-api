@@ -5,7 +5,8 @@ public class FedExHttpClient : IShippingProviderHttpClient
     private readonly HttpClient _httpClient;
 
     /// <summary>
-    /// https://developer.fedex.com/api/en-us/catalog/address-validation/v1/docs.html#operation/Validate%20Address
+    /// FedEx Address Validation API, "Validate Address" operation:
+    /// https://developer.fedex.com/api/en-us/catalog/address-validation/v1/docs.html
     /// </summary>
     public FedExHttpClient(HttpClient httpClient)
     {
@@ -18,5 +19,5 @@ public class FedExHttpClient : IShippingProviderHttpClient
         //var response = _httpClient.PostAsync(url, content);
         return requestPayload;
     }
- 
+
 }

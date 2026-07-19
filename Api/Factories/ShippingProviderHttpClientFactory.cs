@@ -1,5 +1,7 @@
-public class ShippingProviderHttpClientFactory(Func<ShippingProviderType, IShippingProviderHttpClientFactory> factoryResolver) : 
-    BaseFactory<IShippingProviderHttpClientFactory>(factoryResolver)
+public class ShippingProviderHttpClientFactory
+(
+    Func<ShippingProviderType, IShippingProviderHttpClientFactory> factoryResolver
+) : BaseFactory<IShippingProviderHttpClientFactory>(factoryResolver)
 {
     public IShippingProviderHttpClient CreateHttpClient(int shippingCompanyId)
     {

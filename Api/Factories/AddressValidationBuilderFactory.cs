@@ -1,5 +1,7 @@
-public class AddressValidationBuilderFactory(Func<ShippingProviderType, IAddressValidationRequestBuilderFactory> factoryResolver) : 
-    BaseFactory<IAddressValidationRequestBuilderFactory>(factoryResolver)
+public class AddressValidationBuilderFactory
+(
+    Func<ShippingProviderType, IAddressValidationRequestBuilderFactory> factoryResolver
+) : BaseFactory<IAddressValidationRequestBuilderFactory>(factoryResolver)
 {
     public IAddressValidationRequestBuilder CreateBuilder(int shippingCompanyId)
     {

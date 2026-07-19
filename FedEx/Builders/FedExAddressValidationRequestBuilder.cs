@@ -1,4 +1,5 @@
-public class FedExAddressValidationRequestBuilder : IAddressValidationRequestBuilder, ISerializableRequest
+public class FedExAddressValidationRequestBuilder
+    : IAddressValidationRequestBuilder, ISerializableRequest
 {
     private FedExAddressValidationPayload _payload;
     public FedExAddressValidationRequestBuilder()

@@ -4,11 +4,19 @@ using Microsoft.Extensions.Options;
 
 static class ApplicationServiceExtensions
 {
-    public static void AddUpsHttpClient(this IServiceCollection services, IConfiguration config, IHostEnvironment env)
+    public static void AddUpsHttpClient
+    (
+        this IServiceCollection services,
+        IConfiguration config,
+        IHostEnvironment env
+    )
     {
         if (env.IsDevelopment())
         {
-            services.Configure<ShippingProviderHttpClientSettings>(config.GetSection("UpsHttpClient"));
+            services.Configure<ShippingProviderHttpClientSettings>
+            (
+                config.GetSection("UpsHttpClient")
+            );
         }
 
         var baseAddress = config["UpsHttpClient:BaseAddress"];
@@ -16,18 +24,28 @@ static class ApplicationServiceExtensions
 
         services.AddHttpClient<UpsHttpClient>(client =>
         {
+            var headers = client.DefaultRequestHeaders;
+
             client.BaseAddress = baseAddress is not null ? new Uri(baseAddress) : null;
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", apiKey);
-            client.DefaultRequestHeaders.Add("X-Locale", "en_US");
-            client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json");
+            headers.Authorization = new AuthenticationHeaderValue("Bearer", apiKey);
+            headers.Add("X-Locale", "en_US");
+            headers.TryAddWithoutValidation("Content-Type", "application/json");
         });
     }
 
-    public static void AddFedExHttpClient(this IServiceCollection services, IConfiguration config, IHostEnvironment env)
+    public static void AddFedExHttpClient
+    (
+        this IServiceCollection services,
+        IConfiguration config,
+        IHostEnvironment env
+    )
     {
         if (env.IsDevelopment())
         {
-            services.Configure<ShippingProviderHttpClientSettings>(config.GetSection("UpsHttpClient"));
+            services.Configure<ShippingProviderHttpClientSettings>
+            (
+                config.GetSection("UpsHttpClient")
+            );
         }
 
         var baseAddress = config["FedExHttpClient:BaseAddress"];
@@ -35,17 +53,19 @@ static class ApplicationServiceExtensions
 
         services.AddHttpClient<FedExHttpClient>(client =>
         {
+            var headers = client.DefaultRequestHeaders;
+
             client.BaseAddress = baseAddress != null ? new Uri(baseAddress) : null;
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", apiKey);
-            client.DefaultRequestHeaders.Add("X-Locale", "en_US");
-            client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json");
+            headers.Authorization = new AuthenticationHeaderValue("Bearer", apiKey);
+            headers.Add("X-Locale", "en_US");
+            headers.TryAddWithoutValidation("Content-Type", "application/json");
         });
     }
 
     public static void AddFactories(this IServiceCollection services)
     {
         services.AddScoped<ShippingProviderHttpClientFactory>();
-        
+
         services.AddScoped(sp =>
         {
             return new UpsHttpClientFactory(sp.GetRequiredService<IHttpClientFactory>());
@@ -71,12 +91,25 @@ static class ApplicationServiceExtensions
 
     public static void AddFactoryResolvers(this IServiceCollection services)
     {
-        services.AddTransient<Func<ShippingProviderType, IAddressValidationRequestBuilderFactory>>(sp =>
+        services.AddTransient
+        <
+            Func<ShippingProviderType, IAddressValidationRequestBuilderFactory>
+        >(sp =>
         {
-            var factories = new Dictionary<ShippingProviderType, IAddressValidationRequestBuilderFactory>
+            var factories = new Dictionary
+            <
+                ShippingProviderType,
+                IAddressValidationRequestBuilderFactory
+            >
             {
-                { ShippingProviderType.Ups, sp.GetRequiredService<UpsAddressValidationBuilderFactory>() },
-                { ShippingProviderType.FedEx, sp.GetRequiredService<FedExAddressValidationBuilderFactory>() }
+                {
+                    ShippingProviderType.Ups,
+                    sp.GetRequiredService<UpsAddressValidationBuilderFactory>()
+                },
+                {
+                    ShippingProviderType.FedEx,
+                    sp.GetRequiredService<FedExAddressValidationBuilderFactory>()
+                }
             };
 
             return key =>
@@ -86,7 +119,9 @@ static class ApplicationServiceExtensions
                     return factory;
                 }
 
-                throw new KeyNotFoundException($"No address validation request builder found for shipping company type: {key}");
+                var message = "No address validation request builder found for "
+                    + $"shipping company type: {key}";
+                throw new KeyNotFoundException(message);
             };
         });
 
@@ -105,7 +140,8 @@ static class ApplicationServiceExtensions
                     return factory;
                 }
 
-                throw new KeyNotFoundException($"No HTTP client factory found for shipping company type: {key}");
+                var message = $"No HTTP client factory found for shipping company type: {key}";
+                throw new KeyNotFoundException(message);
             };
         });
     }

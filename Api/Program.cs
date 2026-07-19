@@ -68,14 +68,16 @@ app.MapPost("/validate-address", async
     string response;
     using var scope = app.Services.CreateScope();
 
-    var addressValidationRequestBuilder = addressValidationBuilderFactory.CreateBuilder(request.ShippingCompanyId);
+    var addressValidationRequestBuilder =
+        addressValidationBuilderFactory.CreateBuilder(request.ShippingCompanyId);
     var address = await addressService.GetAddressAsync(request.AddressId);
 
     var requestPayload = addressValidationRequestBuilder
-                            .BuildAddressRequest(address)
-                            .SerializeRequest();
+        .BuildAddressRequest(address)
+        .SerializeRequest();
 
-    var addressValidationEndpoint = uriEndpointProvider.GetAddressValidationEndpoint(request.ShippingCompanyId);
+    var addressValidationEndpoint =
+        uriEndpointProvider.GetAddressValidationEndpoint(request.ShippingCompanyId);
     var httpClient = httpClientFactory.CreateHttpClient(request.ShippingCompanyId);
     response = httpClient.SendRequest(addressValidationEndpoint, requestPayload);
 

@@ -4,7 +4,7 @@ class ShippingDb : DbContext
 {
     public ShippingDb(DbContextOptions<ShippingDb> options) : base(options)
     {
-        
+
     }
 
     public DbSet<ShippingCompany> ShippingCompanies => Set<ShippingCompany>();
@@ -15,13 +15,29 @@ class ShippingDb : DbContext
         base.OnModelCreating(modelBuilder);
         modelBuilder.Entity<ShippingCompany>()
             .HasData(
-                new ShippingCompany { Id = 1, Name = "UPS", AccountNumber="12345"},
-                new ShippingCompany { Id = 2, Name = "Fed Ex", AccountNumber="67890"}
+                new ShippingCompany { Id = 1, Name = "UPS", AccountNumber = "12345" },
+                new ShippingCompany { Id = 2, Name = "Fed Ex", AccountNumber = "67890" }
             );
         modelBuilder.Entity<Address>()
             .HasData(
-                new Address { Id = 1, Address1 = "555 Somewhere St.", City = "Altamonte Springs", State = "FL", ZipCode = "32789", CountryCode = "US" },
-                new Address { Id = 2, Address1 = "777 Magnolia Blvd.", City = "Thornton", State = "CO", ZipCode = "80241", CountryCode = "US" }
+                new Address
+                {
+                    Id = 1,
+                    Address1 = "555 Somewhere St.",
+                    City = "Altamonte Springs",
+                    State = "FL",
+                    ZipCode = "32789",
+                    CountryCode = "US"
+                },
+                new Address
+                {
+                    Id = 2,
+                    Address1 = "777 Magnolia Blvd.",
+                    City = "Thornton",
+                    State = "CO",
+                    ZipCode = "80241",
+                    CountryCode = "US"
+                }
             );
     }
 }

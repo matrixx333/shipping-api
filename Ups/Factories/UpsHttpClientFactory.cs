@@ -1,4 +1,5 @@
-public class UpsHttpClientFactory(IHttpClientFactory httpClientFactory) : IShippingProviderHttpClientFactory
+public class UpsHttpClientFactory(IHttpClientFactory httpClientFactory)
+    : IShippingProviderHttpClientFactory
 {
     public IShippingProviderHttpClient CreateHttpClient()
     {

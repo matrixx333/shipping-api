@@ -1,4 +1,5 @@
-public class FedExHttpClientFactory(IHttpClientFactory httpClientFactory) : IShippingProviderHttpClientFactory
+public class FedExHttpClientFactory(IHttpClientFactory httpClientFactory)
+    : IShippingProviderHttpClientFactory
 {
     public IShippingProviderHttpClient CreateHttpClient()
     {

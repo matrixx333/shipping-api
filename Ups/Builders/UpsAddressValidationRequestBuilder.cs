@@ -1,4 +1,5 @@
-public class UpsAddressValidationRequestBuilder : IAddressValidationRequestBuilder, ISerializableRequest
+public class UpsAddressValidationRequestBuilder
+    : IAddressValidationRequestBuilder, ISerializableRequest
 {
     private UpsAddressValidationPayload _payload;
 
@@ -22,7 +23,7 @@ public class UpsAddressValidationRequestBuilder : IAddressValidationRequestBuild
             PoliticalDivision1 = address.State,
             PostcodePrimaryLow = address.ZipCode,
             CountryCode = address.CountryCode
-        };        
+        };
         var xavRequest = new XAVRequest
         {
             AddressKeyFormat = addressKeyFormat
