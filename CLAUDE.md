@@ -17,6 +17,35 @@ dotnet watch --project Api run    # run with hot reload
 dotnet test                       # run the unit tests (Tests project)
 ```
 
+## Code style
+
+@.claude/rules/code-style.md
+
+Two hooks enforce the above (wired in `.claude/settings.json`):
+
+- **`PostToolUse`** → `.claude/hooks/check-line-length.ps1` (~200ms). Checks only the file
+  just edited for lines over 100 characters. Blocks on lines written in this session;
+  pre-existing long lines never block on their own.
+- **`Stop`** → `.claude/hooks/check-format.ps1` (~3.5s). Runs `dotnet format` over the C#
+  files changed this session. Skips `dotnet format` entirely — and stays under a second —
+  when no C# file changed.
+
+`dotnet format` cannot enforce the line limit (Roslyn has no reflow-to-column-limit pass;
+`max_line_length` in `.editorconfig` is honoured by Rider but not by `dotnet format`), which
+is why the two layers exist and why the first one is a custom script.
+
+The first time the line-length hook meets pre-existing violations it asks how widely to
+apply the rule, then records the answer in `.claude/.state/line-length-scope` — one of
+`new-only`, `touched-files`, or `whole-codebase`. Delete that file to be asked again; it is
+the only gitignored thing under `.claude/`.
+
+The codebase is currently **clean on both counts** — 0 lines over 100 characters and 0
+`dotnet format` issues — so the hooks only ever fire on newly introduced violations. The
+scope file is set to `whole-codebase`; keep it that way to stop the debt reaccumulating.
+
+Because the tree is clean, a `dotnet format whitespace --verify-no-changes` gate can now
+safely be added to `.github/workflows/deploy-to-azure.yml`. That has not been done yet.
+
 ## Testing
 
 The `Tests` project holds the unit suite (NUnit + Moq + FluentAssertions). Test data comes from fluent builders in `Tests/Builders/` (`AddressBuilder`, `ShippingCompanyBuilder`, and the internal `ShippingDbBuilder`, which seeds an isolated EF Core InMemory `ShippingDb` per test); SUTs with multiple dependencies are wired through a composition-root harness in `Tests/Harnesses/`. The internal `Api` types (`AddressService`, `ShippingCompanyService`, `ShippingDb`, `ApplicationServiceExtensions`) are reachable because `Api.csproj` has `<InternalsVisibleTo Include="Tests" />`.

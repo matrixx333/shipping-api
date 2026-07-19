@@ -13,6 +13,7 @@
 # Ignore the appsettings files
 Api/appsettings.Development.json
 Api/appsettings.json
-.claude/
+# Claude Code config is committed; only local hook state is ignored
+.claude/.state/
 .agents/
 .vscode/
