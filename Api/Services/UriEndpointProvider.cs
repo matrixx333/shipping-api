@@ -18,7 +18,7 @@ public class UriEndpointProvider(IConfiguration config, IHostEnvironment env)
         }
 
         var upsAddressValidationEndpoint = config["UpsHttpClient:AddressValidationEndpoint"]!;
-        var fedExAddressValidationEndpoint = config["UpsHttpClient:AddressValidationEndpoint"]!;
+        var fedExAddressValidationEndpoint = config["FedExHttpClient:AddressValidationEndpoint"]!;
 
         return shippingProviderType switch
         {

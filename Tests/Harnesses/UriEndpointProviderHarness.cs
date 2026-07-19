@@ -39,6 +39,12 @@ public class UriEndpointProviderHarness
         return this;
     }
 
+    public UriEndpointProviderHarness GivenFedExAddressValidationEndpoint(string endpoint)
+    {
+        _configValues["FedExHttpClient:AddressValidationEndpoint"] = endpoint;
+        return this;
+    }
+
     public UriEndpointProvider Build()
     {
         var config = new ConfigurationBuilder()

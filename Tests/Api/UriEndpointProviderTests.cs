@@ -32,19 +32,19 @@ public class UriEndpointProviderTests
     [Test]
     public void GetAddressValidationEndpoint_ForFedEx_ReturnsConfiguredEndpoint()
     {
-        // Arrange
-        // NOTE: the production code reads the UpsHttpClient endpoint key for both
-        // providers, so FedEx resolves to the same configured value.
+        // Arrange — both endpoints are configured so the assertion proves FedEx
+        // resolves to its own key rather than falling through to the UPS one.
         var sut = _harness
             .GivenDevelopment()
             .GivenUpsAddressValidationEndpoint("https://ups.example/av")
+            .GivenFedExAddressValidationEndpoint("https://fedex.example/av")
             .Build();
 
         // Act
         var result = sut.GetAddressValidationEndpoint((int)ShippingProviderType.FedEx);
 
         // Assert
-        result.Should().Be("https://ups.example/av");
+        result.Should().Be("https://fedex.example/av");
     }
 
     [Test]

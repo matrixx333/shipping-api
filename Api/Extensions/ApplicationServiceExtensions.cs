@@ -44,7 +44,7 @@ static class ApplicationServiceExtensions
         {
             services.Configure<ShippingProviderHttpClientSettings>
             (
-                config.GetSection("UpsHttpClient")
+                config.GetSection("FedExHttpClient")
             );
         }
 
