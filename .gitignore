@@ -1,0 +1,15 @@
+# Ignore the obj directory
+**/obj/
+
+# Ignore the bin directory
+**/bin/
+
+# Ignore the secrets file
+**/secrets.json
+
+# Ignore the appsettings files
+Api/appsettings.Development.json
+Api/appsettings.json
+.claude/
+.agents/
+.vscode/
