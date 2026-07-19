@@ -4,6 +4,9 @@
 # Ignore the bin directory
 **/bin/
 
+# Ignore test coverage output
+**/TestResults/
+
 # Ignore the secrets file
 **/secrets.json
 

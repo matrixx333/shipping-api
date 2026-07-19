@@ -100,6 +100,23 @@ Authorization: Bearer <token>
 
 The response is the serialized provider payload that would have been sent to UPS or FedEx.
 
+### Running the tests
+
+The [Tests](Tests) project covers the request builders, the per-provider and factory-of-factories dispatch, the EF-backed services, `UriEndpointProvider`, and the DI wiring — reaching 100% line and branch coverage of the logic-bearing classes. It uses NUnit, Moq, and FluentAssertions, with fluent data builders and a composition-root harness for arranging each system under test.
+
+```bash
+dotnet test
+```
+
+To collect coverage (coverlet writes a cobertura report under `Tests/TestResults/`):
+
+```bash
+dotnet test Tests/Tests.csproj -m:1 -p:CollectCoverage=true -p:CoverletOutputFormat=cobertura
+```
+
+> [!NOTE]
+> The minimal-API endpoint in `Api/Program.cs` is left to integration tests (it needs the wired-up host and a JWT), so it is not part of the unit suite. The one deliberately uncovered branch is the unreachable `default` arm of the switch in `UriEndpointProvider`, which the up-front `Enum.IsDefined` guard makes impossible to hit for the two defined provider types.
+
 ## Adding a new shipping provider
 
 The provider-keyed factory pattern is designed so a new carrier can be added without touching existing provider code:
@@ -117,4 +134,4 @@ Full details, including which parts of the pattern must stay in sync, are docume
 [create-azure-app-service.ps1](create-azure-app-service.ps1) provisions a resource group, a Free-tier App Service plan, and an App Service on Azure via the Azure CLI as a starting point for hosting the API.
 
 > [!IMPORTANT]
-> There is no test project in this solution currently, and the data layer is EF Core's InMemory provider seeded with hardcoded rows — there is no real database or migrations. Both stand in for pieces that would back a production deployment.
+> The data layer is EF Core's InMemory provider seeded with hardcoded rows — there is no real database or migrations. It stands in for the persistence layer that would back a production deployment.

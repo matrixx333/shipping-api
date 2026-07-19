@@ -14,9 +14,20 @@ Each shipping provider has its own request schema, so the codebase is built arou
 dotnet build                      # build the whole solution (shipping-api.sln)
 dotnet run --project Api          # run the API (Swagger UI opens at /swagger)
 dotnet watch --project Api run    # run with hot reload
+dotnet test                       # run the unit tests (Tests project)
 ```
 
-There is no test project in this solution currently.
+## Testing
+
+The `Tests` project holds the unit suite (NUnit + Moq + FluentAssertions). Test data comes from fluent builders in `Tests/Builders/` (`AddressBuilder`, `ShippingCompanyBuilder`, and the internal `ShippingDbBuilder`, which seeds an isolated EF Core InMemory `ShippingDb` per test); SUTs with multiple dependencies are wired through a composition-root harness in `Tests/Harnesses/`. The internal `Api` types (`AddressService`, `ShippingCompanyService`, `ShippingDb`, `ApplicationServiceExtensions`) are reachable because `Api.csproj` has `<InternalsVisibleTo Include="Tests" />`.
+
+Collect coverage with coverlet (build single-threaded so instrumentation isn't corrupted); it writes a cobertura report under `Tests/TestResults/`:
+
+```
+dotnet test Tests/Tests.csproj -m:1 -p:CollectCoverage=true -p:CoverletOutputFormat=cobertura
+```
+
+The logic-bearing classes are at 100% line/branch coverage. Two things are intentionally excluded: the minimal-API endpoint in `Program.cs` (integration-test territory — needs the wired host and a JWT) and plain POCOs with no logic. The `default` arm of the switch in [UriEndpointProvider](Api/Services/UriEndpointProvider.cs) is unreachable dead code — the up-front `Enum.IsDefined` guard means the cast can only ever be `Ups` or `FedEx` — so that one branch cannot be covered without a production change.
 
 Local config: `Api/appsettings.json` and `Api/appsettings.Development.json` are gitignored (contain provider API keys) and must be created locally. Expected shape:
 
