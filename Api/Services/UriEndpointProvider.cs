@@ -1,6 +1,4 @@
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
-
-public class UriEndpointProvider(IConfiguration config, IHostEnvironment env)
+public class UriEndpointProvider(IConfiguration config)
 {
     public string GetAddressValidationEndpoint(int shippingCompanyId)
     {
@@ -11,19 +9,10 @@ public class UriEndpointProvider(IConfiguration config, IHostEnvironment env)
 
         var shippingProviderType = (ShippingProviderType)shippingCompanyId;
 
-        if (env.IsDevelopment())
-        {
-            config.GetSection("UpsHttpClient");
-            config.GetSection("FedExHttpClient");
-        }
-
-        var upsAddressValidationEndpoint = config["UpsHttpClient:AddressValidationEndpoint"]!;
-        var fedExAddressValidationEndpoint = config["FedExHttpClient:AddressValidationEndpoint"]!;
-
         return shippingProviderType switch
         {
-            ShippingProviderType.Ups => upsAddressValidationEndpoint,
-            ShippingProviderType.FedEx => fedExAddressValidationEndpoint,
+            ShippingProviderType.Ups => config["UpsHttpClient:AddressValidationEndpoint"]!,
+            ShippingProviderType.FedEx => config["FedExHttpClient:AddressValidationEndpoint"]!,
             _ => throw new KeyNotFoundException("Shipping provider not found")
         };
     }

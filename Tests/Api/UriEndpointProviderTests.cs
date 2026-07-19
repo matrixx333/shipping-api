@@ -14,11 +14,10 @@ public class UriEndpointProviderTests
     public void SetUp() => _harness = new UriEndpointProviderHarness();
 
     [Test]
-    public void GetAddressValidationEndpoint_ForUpsInDevelopment_ReturnsConfiguredEndpoint()
+    public void GetAddressValidationEndpoint_ForUps_ReturnsConfiguredEndpoint()
     {
         // Arrange
         var sut = _harness
-            .GivenDevelopment()
             .GivenUpsAddressValidationEndpoint("https://ups.example/av")
             .Build();
 
@@ -35,7 +34,6 @@ public class UriEndpointProviderTests
         // Arrange — both endpoints are configured so the assertion proves FedEx
         // resolves to its own key rather than falling through to the UPS one.
         var sut = _harness
-            .GivenDevelopment()
             .GivenUpsAddressValidationEndpoint("https://ups.example/av")
             .GivenFedExAddressValidationEndpoint("https://fedex.example/av")
             .Build();
@@ -45,22 +43,6 @@ public class UriEndpointProviderTests
 
         // Assert
         result.Should().Be("https://fedex.example/av");
-    }
-
-    [Test]
-    public void GetAddressValidationEndpoint_InProduction_ReturnsConfiguredEndpoint()
-    {
-        // Arrange — exercises the non-Development branch.
-        var sut = _harness
-            .GivenProduction()
-            .GivenUpsAddressValidationEndpoint("https://ups.prod/av")
-            .Build();
-
-        // Act
-        var result = sut.GetAddressValidationEndpoint((int)ShippingProviderType.Ups);
-
-        // Assert
-        result.Should().Be("https://ups.prod/av");
     }
 
     [Test]
