@@ -1,0 +1,13 @@
+# Line endings are pinned here rather than left to each developer's core.autocrlf.
+#
+# .editorconfig sets end_of_line = crlf, and dotnet format enforces it against the
+# working tree. Without an explicit eol setting a Linux checkout (notably the
+# ubuntu-latest runner in .github/workflows/deploy-to-azure.yml) produces LF files,
+# so a `dotnet format whitespace --verify-no-changes` gate would fail on every file.
+# Pinning eol=crlf keeps the working tree consistent with .editorconfig everywhere
+# while still storing normalised LF in the repository.
+* text=auto eol=crlf
+
+# Shell scripts must keep LF or they will not execute on Linux. There are none in
+# the tree today; this is here so adding one later does not silently break it.
+*.sh text eol=lf
