@@ -9,11 +9,22 @@ public class UriEndpointProvider(IConfiguration config)
 
         var shippingProviderType = (ShippingProviderType)shippingCompanyId;
 
-        return shippingProviderType switch
+        var configKey = shippingProviderType switch
         {
-            ShippingProviderType.Ups => config["UpsHttpClient:AddressValidationEndpoint"]!,
-            ShippingProviderType.FedEx => config["FedExHttpClient:AddressValidationEndpoint"]!,
+            ShippingProviderType.Ups => "UpsHttpClient:AddressValidationEndpoint",
+            ShippingProviderType.FedEx => "FedExHttpClient:AddressValidationEndpoint",
             _ => throw new KeyNotFoundException("Shipping provider not found")
         };
+
+        var endpoint = config[configKey];
+
+        if (string.IsNullOrWhiteSpace(endpoint))
+        {
+            var message = $"No address validation endpoint is configured at '{configKey}' "
+                + $"for shipping provider {shippingProviderType}.";
+            throw new InvalidOperationException(message);
+        }
+
+        return endpoint;
     }
 }

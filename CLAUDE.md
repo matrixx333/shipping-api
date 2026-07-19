@@ -46,6 +46,16 @@ scope file is set to `whole-codebase`; keep it that way to stop the debt reaccum
 Because the tree is clean, a `dotnet format whitespace --verify-no-changes` gate can now
 safely be added to `.github/workflows/deploy-to-azure.yml`. That has not been done yet.
 
+A clean tree is necessary but was not sufficient for that gate. `.editorconfig` sets
+`end_of_line = crlf`, and the workflow runs on `ubuntu-latest`, where a checkout used to
+produce LF — the gate would have failed with 1591 `ENDOFLINE` errors on the first run.
+[.gitattributes](.gitattributes) now pins `* text=auto eol=crlf`, so every working tree
+matches `.editorconfig` while the repository still stores normalised LF. Keep that pin if
+`end_of_line` stays `crlf`; the two settings have to agree or the gate breaks on Linux.
+
+Note this only governs what a *checkout* produces. A tool writing LF directly into the
+working tree still trips `dotnet format` — that is what the `Stop` hook is for.
+
 ## Testing
 
 The `Tests` project holds the unit suite (NUnit + Moq + FluentAssertions). Test data comes from fluent builders in `Tests/Builders/` (`AddressBuilder`, `ShippingCompanyBuilder`, and the internal `ShippingDbBuilder`, which seeds an isolated EF Core InMemory `ShippingDb` per test); SUTs with multiple dependencies are wired through a composition-root harness in `Tests/Harnesses/`. The internal `Api` types (`AddressService`, `ShippingCompanyService`, `ShippingDb`, `ApplicationServiceExtensions`) are reachable because `Api.csproj` has `<InternalsVisibleTo Include="Tests" />`.

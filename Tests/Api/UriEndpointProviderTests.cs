@@ -57,4 +57,35 @@ public class UriEndpointProviderTests
         // Assert
         act.Should().Throw<ArgumentException>().WithMessage("Invalid shipping company ID");
     }
+
+    [Test]
+    public void GetAddressValidationEndpoint_WhenEndpointIsNotConfigured_Throws()
+    {
+        // Arrange — nothing configured, so the lookup returns null.
+        var sut = _harness.Build();
+
+        // Act
+        Action act = () => sut.GetAddressValidationEndpoint((int)ShippingProviderType.Ups);
+
+        // Assert — the message names the missing key so the misconfiguration is
+        // diagnosable, rather than handing a null endpoint to the HTTP client.
+        act.Should().Throw<InvalidOperationException>()
+            .WithMessage("*UpsHttpClient:AddressValidationEndpoint*");
+    }
+
+    [Test]
+    public void GetAddressValidationEndpoint_WhenEndpointIsBlank_Throws()
+    {
+        // Arrange — a present but empty setting is as unusable as a missing one.
+        var sut = _harness
+            .GivenFedExAddressValidationEndpoint("   ")
+            .Build();
+
+        // Act
+        Action act = () => sut.GetAddressValidationEndpoint((int)ShippingProviderType.FedEx);
+
+        // Assert
+        act.Should().Throw<InvalidOperationException>()
+            .WithMessage("*FedExHttpClient:AddressValidationEndpoint*");
+    }
 }
