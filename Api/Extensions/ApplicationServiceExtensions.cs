@@ -4,20 +4,13 @@ using Microsoft.Extensions.Options;
 
 static class ApplicationServiceExtensions
 {
-    public static void AddUpsHttpClient
-    (
-        this IServiceCollection services,
-        IConfiguration config,
-        IHostEnvironment env
-    )
+    public static void AddUpsHttpClient(this IServiceCollection services, IConfiguration config)
     {
-        if (env.IsDevelopment())
-        {
-            services.Configure<ShippingProviderHttpClientSettings>
-            (
-                config.GetSection("UpsHttpClient")
-            );
-        }
+        services.Configure<ShippingProviderHttpClientSettings>
+        (
+            ShippingProviderType.Ups.ToString(),
+            config.GetSection("UpsHttpClient")
+        );
 
         var baseAddress = config["UpsHttpClient:BaseAddress"];
         var apiKey = config["UpsHttpClient:ApiKey"];
@@ -33,20 +26,13 @@ static class ApplicationServiceExtensions
         });
     }
 
-    public static void AddFedExHttpClient
-    (
-        this IServiceCollection services,
-        IConfiguration config,
-        IHostEnvironment env
-    )
+    public static void AddFedExHttpClient(this IServiceCollection services, IConfiguration config)
     {
-        if (env.IsDevelopment())
-        {
-            services.Configure<ShippingProviderHttpClientSettings>
-            (
-                config.GetSection("FedExHttpClient")
-            );
-        }
+        services.Configure<ShippingProviderHttpClientSettings>
+        (
+            ShippingProviderType.FedEx.ToString(),
+            config.GetSection("FedExHttpClient")
+        );
 
         var baseAddress = config["FedExHttpClient:BaseAddress"];
         var apiKey = config["FedExHttpClient:ApiKey"];

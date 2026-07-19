@@ -12,8 +12,8 @@ builder.Services.AddDbContext<ShippingDb>(options =>
 builder.Services.AddServices();
 builder.Services.AddFactories();
 builder.Services.AddFactoryResolvers();
-builder.Services.AddUpsHttpClient(configuration, builder.Environment);
-builder.Services.AddFedExHttpClient(configuration, builder.Environment);
+builder.Services.AddUpsHttpClient(configuration);
+builder.Services.AddFedExHttpClient(configuration);
 builder.Services.AddEndpointsApiExplorer();
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

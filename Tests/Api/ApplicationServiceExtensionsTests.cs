@@ -1,8 +1,7 @@
 using FluentAssertions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Moq;
+using Microsoft.Extensions.Options;
 using NUnit.Framework;
 
 namespace Tests.Api;
@@ -82,7 +81,7 @@ public class ApplicationServiceExtensionsTests
     }
 
     [Test]
-    public void AddUpsHttpClient_InDevelopmentWithBaseAddress_ConfiguresTheNamedClient()
+    public void AddUpsHttpClient_WithBaseAddress_ConfiguresTheNamedClient()
     {
         // Arrange
         var services = new ServiceCollection();
@@ -93,7 +92,7 @@ public class ApplicationServiceExtensionsTests
         });
 
         // Act
-        services.AddUpsHttpClient(config, FakeEnvironment(Environments.Development));
+        services.AddUpsHttpClient(config);
 
         // Assert
         var client = CreateNamedClient(services, "UpsHttpClient");
@@ -103,14 +102,14 @@ public class ApplicationServiceExtensionsTests
     }
 
     [Test]
-    public void AddUpsHttpClient_InProductionWithoutBaseAddress_LeavesBaseAddressNull()
+    public void AddUpsHttpClient_WithoutBaseAddress_LeavesBaseAddressNull()
     {
         // Arrange
         var services = new ServiceCollection();
         var config = BuildConfig(new Dictionary<string, string?>());
 
         // Act
-        services.AddUpsHttpClient(config, FakeEnvironment(Environments.Production));
+        services.AddUpsHttpClient(config);
 
         // Assert
         var client = CreateNamedClient(services, "UpsHttpClient");
@@ -118,7 +117,7 @@ public class ApplicationServiceExtensionsTests
     }
 
     [Test]
-    public void AddFedExHttpClient_InDevelopmentWithBaseAddress_ConfiguresTheNamedClient()
+    public void AddFedExHttpClient_WithBaseAddress_ConfiguresTheNamedClient()
     {
         // Arrange
         var services = new ServiceCollection();
@@ -129,7 +128,7 @@ public class ApplicationServiceExtensionsTests
         });
 
         // Act
-        services.AddFedExHttpClient(config, FakeEnvironment(Environments.Development));
+        services.AddFedExHttpClient(config);
 
         // Assert
         var client = CreateNamedClient(services, "FedExHttpClient");
@@ -139,18 +138,55 @@ public class ApplicationServiceExtensionsTests
     }
 
     [Test]
-    public void AddFedExHttpClient_InProductionWithoutBaseAddress_LeavesBaseAddressNull()
+    public void AddFedExHttpClient_WithoutBaseAddress_LeavesBaseAddressNull()
     {
         // Arrange
         var services = new ServiceCollection();
         var config = BuildConfig(new Dictionary<string, string?>());
 
         // Act
-        services.AddFedExHttpClient(config, FakeEnvironment(Environments.Production));
+        services.AddFedExHttpClient(config);
 
         // Assert
         var client = CreateNamedClient(services, "FedExHttpClient");
         client.BaseAddress.Should().BeNull();
+    }
+
+    [Test]
+    public void ProviderSettings_AreKeyedByProvider_AndDoNotShadowEachOther()
+    {
+        // Arrange — registering both providers must not let one provider's section
+        // overwrite the other's, which is what unnamed options would do.
+        var services = new ServiceCollection();
+        var config = BuildConfig(new Dictionary<string, string?>
+        {
+            ["UpsHttpClient:BaseAddress"] = "https://ups.example/",
+            ["UpsHttpClient:ApiKey"] = "ups-key",
+            ["UpsHttpClient:AddressValidationEndpoint"] = "/ups/av",
+            ["FedExHttpClient:BaseAddress"] = "https://fedex.example/",
+            ["FedExHttpClient:ApiKey"] = "fedex-key",
+            ["FedExHttpClient:AddressValidationEndpoint"] = "/fedex/av"
+        });
+
+        // Act
+        services.AddUpsHttpClient(config);
+        services.AddFedExHttpClient(config);
+
+        using var provider = services.BuildServiceProvider();
+        var monitor = provider
+            .GetRequiredService<IOptionsMonitor<ShippingProviderHttpClientSettings>>();
+
+        var ups = monitor.Get(ShippingProviderType.Ups.ToString());
+        var fedEx = monitor.Get(ShippingProviderType.FedEx.ToString());
+
+        // Assert
+        ups.BaseAddress.Should().Be("https://ups.example/");
+        ups.ApiKey.Should().Be("ups-key");
+        ups.AddressValidationEndpoint.Should().Be("/ups/av");
+
+        fedEx.BaseAddress.Should().Be("https://fedex.example/");
+        fedEx.ApiKey.Should().Be("fedex-key");
+        fedEx.AddressValidationEndpoint.Should().Be("/fedex/av");
     }
 
     private static ServiceProvider BuildFullProvider()
@@ -171,12 +207,4 @@ public class ApplicationServiceExtensionsTests
 
     private static IConfiguration BuildConfig(Dictionary<string, string?> values) =>
         new ConfigurationBuilder().AddInMemoryCollection(values).Build();
-
-    private static IHostEnvironment FakeEnvironment(string environmentName)
-    {
-        var env = new Mock<IHostEnvironment>();
-        env.SetupAllProperties();
-        env.Object.EnvironmentName = environmentName;
-        return env.Object;
-    }
 }
